@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 98">
+  <!-- placeholder: card face background (white with subtle border) -->
+  <rect width="70" height="98" rx="6" fill="#ffffff" />
+  <rect x="3" y="3" width="64" height="92" rx="5" fill="none" stroke="#e0e0e0" stroke-width="1" />
+</svg>

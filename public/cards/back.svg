@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 98">
+  <!-- placeholder: card back -->
+  <rect width="70" height="98" rx="6" fill="#1e3a8a" />
+  <!-- cross-hatch border pattern -->
+  <rect x="5" y="5" width="60" height="88" rx="4" fill="none" stroke="#4a7fd4" stroke-width="2" />
+  <rect x="9" y="9" width="52" height="80" rx="3" fill="none" stroke="#4a7fd4" stroke-width="1" />
+  <!-- diagonal lines -->
+  <line x1="9"  y1="9"  x2="61" y2="89" stroke="#4a7fd4" stroke-width="0.8" opacity="0.5" />
+  <line x1="61" y1="9"  x2="9"  y2="89" stroke="#4a7fd4" stroke-width="0.8" opacity="0.5" />
+  <!-- center diamond -->
+  <polygon points="35,28 50,49 35,70 20,49" fill="none" stroke="#7aa8e8" stroke-width="2" />
+  <polygon points="35,35 44,49 35,63 26,49" fill="#4a7fd4" opacity="0.6" />
+</svg>

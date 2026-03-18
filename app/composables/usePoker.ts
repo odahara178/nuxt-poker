@@ -1,0 +1,178 @@
+export type Suit = '♠' | '♥' | '♦' | '♣'
+export type Rank = '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K' | 'A'
+export type HandRank =
+  | 'HIGH_CARD'
+  | 'ONE_PAIR'
+  | 'TWO_PAIR'
+  | 'THREE_OF_A_KIND'
+  | 'STRAIGHT'
+  | 'FLUSH'
+  | 'FULL_HOUSE'
+  | 'FOUR_OF_A_KIND'
+  | 'STRAIGHT_FLUSH'
+  | 'ROYAL_FLUSH'
+
+export interface Card {
+  suit: Suit
+  rank: Rank
+  id: string
+  faceUp: boolean
+}
+
+export interface EvaluatedHand {
+  rank: HandRank
+  rankIndex: number
+  bestFive: Card[]
+  tiebreakers: number[]
+  label: string
+}
+
+const SUITS: Suit[] = ['♠', '♥', '♦', '♣']
+const RANKS: Rank[] = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+
+const RANK_ORDER: Record<Rank, number> = {
+  '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+  '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14,
+}
+
+const HAND_LABELS: Record<HandRank, string> = {
+  HIGH_CARD: 'ハイカード',
+  ONE_PAIR: 'ワンペア',
+  TWO_PAIR: 'ツーペア',
+  THREE_OF_A_KIND: 'スリーカード',
+  STRAIGHT: 'ストレート',
+  FLUSH: 'フラッシュ',
+  FULL_HOUSE: 'フルハウス',
+  FOUR_OF_A_KIND: 'フォーカード',
+  STRAIGHT_FLUSH: 'ストレートフラッシュ',
+  ROYAL_FLUSH: 'ロイヤルフラッシュ',
+}
+
+const HAND_RANK_INDEX: Record<HandRank, number> = {
+  HIGH_CARD: 0,
+  ONE_PAIR: 1,
+  TWO_PAIR: 2,
+  THREE_OF_A_KIND: 3,
+  STRAIGHT: 4,
+  FLUSH: 5,
+  FULL_HOUSE: 6,
+  FOUR_OF_A_KIND: 7,
+  STRAIGHT_FLUSH: 8,
+  ROYAL_FLUSH: 9,
+}
+
+export function createDeck(): Card[] {
+  return SUITS.flatMap(suit =>
+    RANKS.map(rank => ({
+      suit,
+      rank,
+      id: `${rank}${suit}`,
+      faceUp: true,
+    }))
+  )
+}
+
+export function shuffleDeck(deck: Card[]): Card[] {
+  const d = [...deck]
+  for (let i = d.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[d[i], d[j]] = [d[j], d[i]]
+  }
+  return d
+}
+
+export function dealCards(deck: Card[], count: number): { cards: Card[]; remaining: Card[] } {
+  return {
+    cards: deck.slice(0, count),
+    remaining: deck.slice(count),
+  }
+}
+
+function getCombinations(cards: Card[], k: number): Card[][] {
+  if (k === 0) return [[]]
+  if (cards.length < k) return []
+  const [first, ...rest] = cards
+  const withFirst = getCombinations(rest, k - 1).map(combo => [first, ...combo])
+  return [...withFirst, ...getCombinations(rest, k)]
+}
+
+function evaluateFiveCards(cards: Card[]): EvaluatedHand {
+  const rankVals = cards.map(c => RANK_ORDER[c.rank]).sort((a, b) => b - a)
+  const suitList = cards.map(c => c.suit)
+
+  const isFlush = suitList.every(s => s === suitList[0])
+  const uniqueRanks = [...new Set(rankVals)].sort((a, b) => b - a)
+  const isNormalStraight = uniqueRanks.length === 5 && uniqueRanks[0] - uniqueRanks[4] === 4
+  // A-2-3-4-5 wheel: unique sorted = [14,5,4,3,2]
+  const isWheel =
+    uniqueRanks.length === 5 &&
+    uniqueRanks[0] === 14 &&
+    uniqueRanks[1] === 5 &&
+    uniqueRanks[2] === 4 &&
+    uniqueRanks[3] === 3 &&
+    uniqueRanks[4] === 2
+  const isStraight = isNormalStraight || isWheel
+
+  const rankCounts: Record<number, number> = {}
+  for (const rv of rankVals) {
+    rankCounts[rv] = (rankCounts[rv] || 0) + 1
+  }
+  const countGroups = Object.entries(rankCounts)
+    .map(([rank, count]) => ({ rank: Number(rank), count }))
+    .sort((a, b) => b.count - a.count || b.rank - a.rank)
+  const counts = countGroups.map(g => g.count)
+
+  let handRank: HandRank
+  if (isFlush && isStraight) {
+    handRank = !isWheel && rankVals[0] === 14 ? 'ROYAL_FLUSH' : 'STRAIGHT_FLUSH'
+  } else if (counts[0] === 4) {
+    handRank = 'FOUR_OF_A_KIND'
+  } else if (counts[0] === 3 && counts[1] === 2) {
+    handRank = 'FULL_HOUSE'
+  } else if (isFlush) {
+    handRank = 'FLUSH'
+  } else if (isStraight) {
+    handRank = 'STRAIGHT'
+  } else if (counts[0] === 3) {
+    handRank = 'THREE_OF_A_KIND'
+  } else if (counts[0] === 2 && counts[1] === 2) {
+    handRank = 'TWO_PAIR'
+  } else if (counts[0] === 2) {
+    handRank = 'ONE_PAIR'
+  } else {
+    handRank = 'HIGH_CARD'
+  }
+
+  const tiebreakers: number[] = isStraight
+    ? [isWheel ? 5 : rankVals[0]]
+    : countGroups.map(g => g.rank)
+
+  return {
+    rank: handRank,
+    rankIndex: HAND_RANK_INDEX[handRank],
+    bestFive: cards,
+    tiebreakers,
+    label: HAND_LABELS[handRank],
+  }
+}
+
+export function evaluateBestHand(cards: Card[]): EvaluatedHand {
+  if (cards.length < 5) throw new Error('Need at least 5 cards')
+  const combinations = getCombinations(cards, 5)
+  let best: EvaluatedHand | null = null
+  for (const combo of combinations) {
+    const evaluated = evaluateFiveCards(combo)
+    if (!best || compareHands(evaluated, best) > 0) {
+      best = evaluated
+    }
+  }
+  return best!
+}
+
+export function compareHands(a: EvaluatedHand, b: EvaluatedHand): number {
+  if (a.rankIndex !== b.rankIndex) return a.rankIndex - b.rankIndex
+  for (let i = 0; i < Math.min(a.tiebreakers.length, b.tiebreakers.length); i++) {
+    if (a.tiebreakers[i] !== b.tiebreakers[i]) return a.tiebreakers[i] - b.tiebreakers[i]
+  }
+  return 0
+}

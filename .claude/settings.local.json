@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npx nuxt:*)",
+      "Bash(ls eslint.config*)",
+      "Bash(npm test:*)"
+    ]
+  }
+}

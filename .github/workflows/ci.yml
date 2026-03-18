@@ -1,0 +1,28 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: コード取得
+        uses: actions/checkout@v4
+
+      - name: Nodeセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 依存関係インストール
+        run: npm ci
+
+      - name: Lintチェック
+        run: npm run lint
+
+      - name: ビルド
+        run: npm run build

@@ -1,76 +1,47 @@
-# Nuxt Minimal Starter
-npm -v
-20.11.1
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+# テキサスホールデム ポーカー
+Claude code似て作成
+Nuxt 4 + TypeScript で作成した1人用テキサスホールデムポーカーゲーム。
 
-## Setup
+## 概要
 
-Make sure to install dependencies:
+- 1人 vs AI 1体のヘッズアップ形式
+- ベッティング：フォールド / チェック / コール / レイズ（固定額）
+- チップ獲得がそのままポイントに
+- 連勝ボーナス・役強さボーナスでチップが増加
+
+## ポイントシステム
+
+| 条件 | 倍率 |
+|------|------|
+| 連勝なし | ×1.0 |
+| 1連勝 | ×1.2 |
+| 2連勝 | ×1.5 |
+| 3連勝 | ×2.0 |
+| 4連勝以上 | ×2.5 |
+
+| 役 | 倍率 |
+|----|------|
+| ハイカード / ワンペア | ×1.0 |
+| ツーペア | ×1.1 |
+| スリーカード | ×1.2 |
+| ストレート | ×1.5 |
+| フラッシュ | ×2.0 |
+| フルハウス | ×3.0 |
+| フォーカード | ×5.0 |
+| ストレートフラッシュ | ×8.0 |
+| ロイヤルフラッシュ | ×10.0 |
+
+## 開発サーバー起動
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+`http://localhost:3000` でアクセス可能。
 
-Build the application for production:
+## 今後の予定
 
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- ランキング機能
+- 対戦機能
+- カード画像（PNG）対応

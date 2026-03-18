@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- placeholder: heart ♥ -->
+  <path d="M50 85
+    C50 85 8 52 8 30
+    C8 14 20 5 34 5
+    C42 5 48 9 50 13
+    C52 9 58 5 66 5
+    C80 5 92 14 92 30
+    C92 52 50 85 50 85Z"
+    fill="#cc2200" />
+</svg>

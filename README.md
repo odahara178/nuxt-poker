@@ -1,6 +1,6 @@
 # テキサスホールデム ポーカー
-Claude code似て作成
-Nuxt 4 + TypeScript で作成した1人用テキサスホールデムポーカーゲーム。
+- Claude codeにて作成
+- Nuxt 4 + TypeScript で作成した1人用テキサスホールデムポーカーゲーム。
 
 ## 概要
 
@@ -45,3 +45,7 @@ npm run dev
 - ランキング機能
 - 対戦機能
 - カード画像（PNG）対応
+
+## 知見用システム導入
+- GitHub Actions(CI/CDツール)導入
+- cz-git（古き良きコマンドコミット）

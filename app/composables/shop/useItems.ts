@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { usePlayer } from './usePlayer'
+import { usePlayer } from '../player/usePlayer'
 
 export interface Item {
   id: string

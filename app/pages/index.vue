@@ -73,8 +73,8 @@
 </template>
 
 <script setup lang="ts">
-import { useGame } from '~/composables/useGame'
-import { usePlayer } from '~/composables/usePlayer'
+import { useGame } from '~/composables/game/useGame'
+import { usePlayer } from '~/composables/player/usePlayer'
 
 const {
   gameState,

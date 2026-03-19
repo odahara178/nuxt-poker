@@ -1,10 +1,9 @@
 import type { Card, EvaluatedHand } from './usePoker'
 import { createDeck, shuffleDeck, dealCards, evaluateBestHand, compareHands } from './usePoker'
-import type { GamePhase, BettingState } from './useAI'
-import { useAI } from './useAI'
-import { usePlayer } from './usePlayer'
-import { useSound } from './useSound'
-
+import type { GamePhase, BettingState } from '../player/useAI'
+import { useAI } from '../player/useAI'
+import { usePlayer } from '../player/usePlayer'
+import { useSound } from '../common/useSound'
 
 export type RoundWinner = 'PLAYER' | 'AI' | 'TIE'
 

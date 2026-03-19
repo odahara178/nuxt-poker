@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Card, EvaluatedHand } from '~/composables/usePoker'
+import type { Card, EvaluatedHand } from '~/composables/game/usePoker'
 
 defineProps<{
   cards: Card[]

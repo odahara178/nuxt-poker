@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Card, Suit } from '~/composables/usePoker'
+import type { Card, Suit } from '~/composables/game/usePoker'
 
 const props = withDefaults(
   defineProps<{

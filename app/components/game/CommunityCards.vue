@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { useGame } from '~/composables/useGame'
+import { useGame } from '~/composables/game/useGame'
 
 const { gameState, visibleCommunityCards } = useGame()
 

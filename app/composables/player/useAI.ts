@@ -1,5 +1,5 @@
-import type { Card } from './usePoker'
-import { evaluateBestHand } from './usePoker'
+import type { Card } from '../game/usePoker'
+import { evaluateBestHand } from '../game/usePoker'
 
 export type GamePhase =
   | 'IDLE'

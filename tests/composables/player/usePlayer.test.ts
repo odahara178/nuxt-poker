@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { ref, type Ref } from 'vue'
-import { usePlayer } from './usePlayer'
+import { usePlayer } from '~/composables/player/usePlayer'
 
 type GlobalWithStubs = typeof globalThis & {
   // テスト用スタブ: Nuxt の useState を ref で代替

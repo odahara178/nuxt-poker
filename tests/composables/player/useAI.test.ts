@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { useAI } from './useAI'
-import type { BettingState, GamePhase } from './useAI'
-import type { Card, Suit, Rank } from './usePoker'
+import { useAI } from '~/composables/player/useAI'
+import type { BettingState, GamePhase } from '~/composables/player/useAI'
+import type { Card, Suit, Rank } from '~/composables/game/usePoker'
 
 function c(rank: Rank, suit: Suit): Card {
   return { rank, suit, id: `${rank}${suit}`, faceUp: true }

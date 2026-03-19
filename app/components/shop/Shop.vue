@@ -18,8 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { useItems } from '~/composables/useItems'
-import { useGame } from '~/composables/useGame'
+import { useItems } from '~/composables/shop/useItems'
+import { useGame } from '~/composables/game/useGame'
 
 const { items, buyItem } = useItems()
 const { playerChips } = useGame()

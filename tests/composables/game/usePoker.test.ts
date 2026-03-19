@@ -5,8 +5,8 @@ import {
   dealCards,
   evaluateBestHand,
   compareHands,
-} from './usePoker'
-import type { Card, Suit, Rank } from './usePoker'
+} from '~/composables/game/usePoker'
+import type { Card, Suit, Rank } from '~/composables/game/usePoker'
 
 // Helper: create a card quickly
 function c(rank: Rank, suit: Suit): Card {

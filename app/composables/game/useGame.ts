@@ -4,19 +4,6 @@ import type { GamePhase, BettingState } from '../player/useAI'
 import { useAI } from '../player/useAI'
 import { usePlayer } from '../player/usePlayer'
 import { useSound } from '../common/useSound'
-import {
-  STARTING_CHIPS,
-  SMALL_BLIND,
-  BIG_BLIND,
-  RAISE_AMOUNT,
-  AI_ACTION_DELAY_MS,
-  PLAYER_ACTION_DELAY_MS,
-  PHASE_REVEAL_DELAY_MS,
-  SHOWDOWN_RESULT_DELAY_MS,
-  STREAK_MULTIPLIERS,
-  HAND_MULTIPLIERS,
-  MESSAGES,
-} from '~/config/game'
 
 export type RoundWinner = 'PLAYER' | 'AI' | 'TIE'
 

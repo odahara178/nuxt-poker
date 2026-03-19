@@ -1,5 +1,3 @@
-import { STARTING_CHIPS } from '~/config/game'
-
 export function usePlayer() {
   const chips = useState('playerChips', () => STARTING_CHIPS)
   const winStreak = useState('winStreak', () => 0)

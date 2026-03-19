@@ -47,7 +47,6 @@
 
 <script setup lang="ts">
 import { useGame } from '~/composables/game/useGame'
-import { RAISE_AMOUNT } from '~/config/game'
 
 const { gameState, canFold, canCall, canRaise, canCheck, playerFold, playerCall, playerRaise, playerCheck } =
   useGame()

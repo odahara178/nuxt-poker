@@ -1,26 +1,5 @@
 import type { Card } from '../game/usePoker'
 import { evaluateBestHand } from '../game/usePoker'
-import {
-  PREFLOP_DEFAULT_SCORE,
-  PREFLOP_BASE_SCORE,
-  PAIR_BONUS,
-  PAIR_RANK_MULTIPLIER,
-  HIGH_RANK_MULTIPLIER,
-  SUITED_BONUS,
-  CONNECTOR_GAP1_BONUS,
-  CONNECTOR_GAP2_BONUS,
-  MAX_SCORE,
-  RANK_INDEX_MULTIPLIER,
-  BLUFF_PROB,
-  BLUFF_SCORE_BOOST,
-  HERO_FOLD_PROB,
-  HERO_FOLD_REDUCTION,
-  STRONG_HAND_THRESHOLD,
-  MEDIUM_HAND_THRESHOLD,
-  WEAK_HAND_THRESHOLD,
-  FOLD_COST_RATIO,
-} from '~/config/ai'
-import { RAISE_AMOUNT } from '~/config/game'
 
 export type GamePhase =
   | 'IDLE'

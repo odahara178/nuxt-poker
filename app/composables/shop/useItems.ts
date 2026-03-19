@@ -1,6 +1,5 @@
 import { ref } from 'vue'
 import { usePlayer } from '../player/usePlayer'
-import { ITEM_IDS, EXTRA_CHIPS_COST, EXTRA_CHIPS_GRANT } from '~/config/game'
 
 export interface Item {
   id: string

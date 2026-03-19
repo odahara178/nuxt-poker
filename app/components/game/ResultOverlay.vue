@@ -37,7 +37,6 @@
 
 <script setup lang="ts">
 import { useGame } from '~/composables/game/useGame'
-import { MESSAGES } from '~/config/game'
 
 const { gameState, proceedToNextRound } = useGame()
 

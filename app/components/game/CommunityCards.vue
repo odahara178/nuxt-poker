@@ -19,7 +19,6 @@
 
 <script setup lang="ts">
 import { useGame } from '~/composables/game/useGame'
-import { PHASE_LABELS } from '~/config/game'
 
 const { gameState, visibleCommunityCards } = useGame()
 

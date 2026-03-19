@@ -75,7 +75,6 @@
 <script setup lang="ts">
 import { useGame } from '~/composables/game/useGame'
 import { usePlayer } from '~/composables/player/usePlayer'
-import { STARTING_CHIPS, MESSAGES } from '~/config/game'
 
 const {
   gameState,

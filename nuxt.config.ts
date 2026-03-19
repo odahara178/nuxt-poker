@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@nuxt/eslint'],
+  imports: { dirs: ['config'] },
   components: [{ path: '~/components', pathPrefix: false }],
   css: ['~/assets/css/tokens.css'],
   app: {

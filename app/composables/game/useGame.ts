@@ -1,37 +1,12 @@
-import type { Card, EvaluatedHand } from './usePoker'
+import type { Card, EvaluatedHand } from '~/types/game/card'
+import type { GamePhase, BettingState } from '~/types/game/betting'
+import type { GameState, BonusResult, RoundWinner } from '~/types/game/state'
 import { createDeck, shuffleDeck, dealCards, evaluateBestHand, compareHands } from './usePoker'
-import type { GamePhase, BettingState } from '../player/useAI'
-import { useAI } from '../player/useAI'
-import { usePlayer } from '../player/usePlayer'
-import { useSound } from '../common/useSound'
+import { useAI } from '~/composables/player/useAI'
+import { usePlayer } from '~/composables/player/usePlayer'
+import { useSound } from '~/composables/common/useSound'
 
-export type RoundWinner = 'PLAYER' | 'AI' | 'TIE'
-
-export interface BonusResult {
-  basePot: number
-  streakMultiplier: number
-  handMultiplier: number
-  finalPayout: number
-  bonusChips: number
-  messages: string[]
-}
-
-export interface GameState {
-  phase: GamePhase
-  deck: Card[]
-  communityCards: Card[]
-  playerHoleCards: Card[]
-  aiHoleCards: Card[]
-  betting: BettingState
-  playerEvaluation: EvaluatedHand | null
-  aiEvaluation: EvaluatedHand | null
-  winner: RoundWinner | null
-  bonusResult: BonusResult | null
-  roundNumber: number
-  message: string
-  isPlayerTurn: boolean
-  pendingAIAction: boolean
-}
+export type { GameState, BonusResult, RoundWinner }
 
 function initialBetting(): BettingState {
   return {

@@ -1,27 +1,8 @@
-import type { Card } from '../game/usePoker'
-import { evaluateBestHand } from '../game/usePoker'
+import type { Card } from '~/types/game/card'
+import type { GamePhase, BettingAction, BettingState } from '~/types/game/betting'
+import { evaluateBestHand } from '~/composables/game/usePoker'
 
-export type GamePhase =
-  | 'IDLE'
-  | 'DEALING'
-  | 'PREFLOP'
-  | 'FLOP'
-  | 'TURN'
-  | 'RIVER'
-  | 'SHOWDOWN'
-  | 'RESULT'
-  | 'GAME_OVER'
-
-export type BettingAction = 'FOLD' | 'CALL' | 'RAISE' | 'CHECK'
-
-export interface BettingState {
-  pot: number
-  currentBet: number
-  playerBet: number
-  aiBet: number
-  playerRaisedThisRound: boolean
-  aiRaisedThisRound: boolean
-}
+export type { GamePhase, BettingAction, BettingState }
 
 const RANK_ORDER: Record<string, number> = {
   '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,

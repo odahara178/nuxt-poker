@@ -1,12 +1,8 @@
 import { ref } from 'vue'
-import { usePlayer } from '../player/usePlayer'
+import type { Item } from '~/types/shop/item'
+import { usePlayer } from '~/composables/player/usePlayer'
 
-export interface Item {
-  id: string
-  name: string
-  cost: number
-  description: string
-}
+export type { Item }
 
 export function useItems() {
   const player = usePlayer()

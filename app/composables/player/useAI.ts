@@ -36,7 +36,7 @@ function getPostFlopScore(holeCards: Card[], communityCards: Card[]): number {
   if (communityCards.length === 0) return getPreFlopScore(holeCards)
   const allCards = [...holeCards, ...communityCards]
   const evaluated = evaluateBestHand(allCards)
-  return Math.min(MAX_SCORE, evaluated.rankIndex * RANK_INDEX_MULTIPLIER)
+  return Math.min(MAX_SCORE, POSTFLOP_BASE_SCORE + evaluated.rankIndex * RANK_INDEX_MULTIPLIER)
 }
 
 export function useAI() {
@@ -53,11 +53,14 @@ export function useAI() {
         ? getPreFlopScore(holeCards)
         : getPostFlopScore(holeCards, communityCards)
 
-    // ランダム分散（ブラフ / ヒーローフォールド）
+    // ブラフ / ヒーローフォールド（排他）
     const rand = Math.random()
-    if (rand < BLUFF_PROB) {
+    const isBluffing = rand < BLUFF_PROB
+    const isHeroFolding = !isBluffing && rand < BLUFF_PROB + HERO_FOLD_PROB
+
+    if (isBluffing) {
       score = Math.min(MAX_SCORE, score + BLUFF_SCORE_BOOST)
-    } else if (rand < HERO_FOLD_PROB) {
+    } else if (isHeroFolding) {
       score = Math.max(0, score - HERO_FOLD_REDUCTION)
     }
 
@@ -65,17 +68,23 @@ export function useAI() {
     const canRaise = !betting.aiRaisedThisRound && aiChips >= callCost + raiseAmount
 
     if (score > STRONG_HAND_THRESHOLD) {
+      // 強いハンド（ブラフ含む）: レイズ優先
       if (canRaise) return 'RAISE'
       if (callCost === 0) return 'CHECK'
       return 'CALL'
     } else if (score > MEDIUM_HAND_THRESHOLD) {
+      // 中程度のハンド: 高額コールのみフォールド
       if (callCost > aiChips * FOLD_COST_RATIO) return 'FOLD'
       if (callCost === 0) return 'CHECK'
       return 'CALL'
     } else if (score > WEAK_HAND_THRESHOLD) {
+      // 弱いハンド: 少額ならコール、高額はフォールド
       if (callCost === 0) return 'CHECK'
+      if (callCost <= aiChips * WEAK_FOLD_COST_RATIO) return 'CALL'
       return 'FOLD'
     } else {
+      // 非常に弱いハンド（ヒーローフォールド後など）
+      if (callCost === 0) return 'CHECK'
       return 'FOLD'
     }
   }

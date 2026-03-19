@@ -1,8 +1,14 @@
 // ── Chips & Blinds ───────────────────────────────────────────────
 export const STARTING_CHIPS = 1000
-export const SMALL_BLIND = 10
-export const BIG_BLIND = 20
-export const RAISE_AMOUNT = 40
+
+/** ラウンド毎のブラインドレベル（fromRound 以降に適用、降順で定義） */
+export const BLIND_LEVELS = [
+  { fromRound: 21, small: 150, big: 300, raise: 600 },
+  { fromRound: 16, small: 75,  big: 150, raise: 300 },
+  { fromRound: 11, small: 40,  big: 80,  raise: 160 },
+  { fromRound: 6,  small: 20,  big: 40,  raise: 80  },
+  { fromRound: 1,  small: 10,  big: 20,  raise: 40  },
+] as const
 
 // ── Action Delays (ms) ──────────────────────────────────────────
 export const AI_ACTION_DELAY_MS = 800

@@ -1,12 +1,12 @@
 import type { Card, EvaluatedHand } from '~/types/game/card'
 import type { GamePhase, BettingState } from '~/types/game/betting'
-import type { GameState, BonusResult, RoundWinner } from '~/types/game/state'
+import type { GameState, ScoreResult, RoundWinner } from '~/types/game/state'
 import { createDeck, shuffleDeck, dealCards, evaluateBestHand, compareHands } from './usePoker'
 import { useAI } from '~/composables/player/useAI'
 import { usePlayer } from '~/composables/player/usePlayer'
 import { useSound } from '~/composables/common/useSound'
 
-export type { GameState, BonusResult, RoundWinner }
+export type { GameState, ScoreResult, RoundWinner }
 
 function initialBetting(): BettingState {
   return {
@@ -30,12 +30,19 @@ function initialGameState(): GameState {
     playerEvaluation: null,
     aiEvaluation: null,
     winner: null,
-    bonusResult: null,
+    scoreResult: null,
     roundNumber: 0,
     message: MESSAGES.IDLE,
     isPlayerTurn: false,
     pendingAIAction: false,
   }
+}
+
+function getBlindLevel(roundNumber: number) {
+  for (const level of BLIND_LEVELS) {
+    if (roundNumber >= level.fromRound) return level
+  }
+  return BLIND_LEVELS[BLIND_LEVELS.length - 1]!
 }
 
 function getStreakMultiplier(streak: number): number {
@@ -51,12 +58,14 @@ function getHandMultiplier(rankIndex: number): number {
 
 export function useGame() {
   const { decideAction } = useAI()
-  const { chips: playerChips, winStreak, totalWon, handsPlayed, addChips, resetStreak, incrementStreak } =
+  const { chips: playerChips, score: playerScore, winStreak, totalWon, handsPlayed, addChips, addScore, resetStreak, incrementStreak } =
     usePlayer()
   const { playCardDeal } = useSound()
 
   const gameState = useState<GameState>('gameState', initialGameState)
   const aiChips = useState('aiChips', () => STARTING_CHIPS)
+
+  const currentBlindLevel = computed(() => getBlindLevel(gameState.value.roundNumber))
 
   const canFold = computed(
     () => gameState.value.isPlayerTurn && !gameState.value.pendingAIAction,
@@ -75,7 +84,7 @@ export function useGame() {
     () =>
       canFold.value &&
       !gameState.value.betting.playerRaisedThisRound &&
-      playerChips.value >= gameState.value.betting.currentBet - gameState.value.betting.playerBet + RAISE_AMOUNT,
+      playerChips.value >= gameState.value.betting.currentBet - gameState.value.betting.playerBet + currentBlindLevel.value.raise,
   )
 
   const visibleCommunityCards = computed<Card[]>(() => {
@@ -100,9 +109,12 @@ export function useGame() {
 
     const aiHoleCards = aiCards.map(card => ({ ...card, faceUp: false }))
 
+    const nextRound = gameState.value.roundNumber + 1
+    const blinds = getBlindLevel(nextRound)
+
     // Post blinds
-    playerChips.value -= SMALL_BLIND
-    aiChips.value -= BIG_BLIND
+    playerChips.value -= blinds.small
+    aiChips.value -= blinds.big
 
     gameState.value = {
       phase: 'PREFLOP',
@@ -111,17 +123,17 @@ export function useGame() {
       playerHoleCards: playerCards,
       aiHoleCards,
       betting: {
-        pot: SMALL_BLIND + BIG_BLIND,
-        currentBet: BIG_BLIND,
-        playerBet: SMALL_BLIND,
-        aiBet: BIG_BLIND,
+        pot: blinds.small + blinds.big,
+        currentBet: blinds.big,
+        playerBet: blinds.small,
+        aiBet: blinds.big,
         playerRaisedThisRound: false,
         aiRaisedThisRound: false,
       },
       playerEvaluation: null,
       aiEvaluation: null,
       winner: null,
-      bonusResult: null,
+      scoreResult: null,
       roundNumber: gameState.value.roundNumber + 1,
       message: MESSAGES.PREFLOP_ACTION,
       isPlayerTurn: true,
@@ -158,9 +170,10 @@ export function useGame() {
   function playerRaise() {
     if (!canRaise.value) return
     gameState.value.isPlayerTurn = false // 二重押し防止
+    const raiseAmount = currentBlindLevel.value.raise
     setTimeout(() => {
       const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
-      const totalCost = callCost + RAISE_AMOUNT
+      const totalCost = callCost + raiseAmount
       playerChips.value -= totalCost
       gameState.value.betting.playerBet += totalCost
       gameState.value.betting.currentBet = gameState.value.betting.playerBet
@@ -194,6 +207,7 @@ export function useGame() {
       visibleCommunityCards.value,
       betting,
       aiChips.value,
+      getBlindLevel(gameState.value.roundNumber).raise,
     )
 
     if (action === 'FOLD') {
@@ -218,14 +232,15 @@ export function useGame() {
     }
 
     if (action === 'RAISE') {
-      const totalCost = callCost + RAISE_AMOUNT
+      const raiseAmount = getBlindLevel(gameState.value.roundNumber).raise
+      const totalCost = callCost + raiseAmount
       aiChips.value -= totalCost
       betting.aiBet += totalCost
       betting.currentBet = betting.aiBet
       betting.pot += totalCost
       betting.aiRaisedThisRound = true
       betting.playerRaisedThisRound = true // cap: prevent re-raise
-      gameState.value.message = `AIはレイズしました（+${RAISE_AMOUNT}）`
+      gameState.value.message = `AIはレイズしました（+${raiseAmount}）`
       gameState.value.isPlayerTurn = true
     }
   }
@@ -296,39 +311,43 @@ export function useGame() {
     const pot = gameState.value.betting.pot
 
     if (winner === 'PLAYER') {
+      // チップ: ポットをそのまま獲得（ボーナス倍率なし）
+      addChips(pot)
+
+      // スコア: 連勝・役のボーナス倍率を適用
       const streakMult = getStreakMultiplier(winStreak.value)
       const handMult = gameState.value.playerEvaluation
         ? getHandMultiplier(gameState.value.playerEvaluation.rankIndex)
         : 1.0
-      const finalPayout = Math.floor(pot * streakMult * handMult)
-      const bonusChips = finalPayout - pot
+      const totalScore = Math.floor(pot * streakMult * handMult)
+      const bonusScore = totalScore - pot
       const messages: string[] = []
       if (streakMult > 1) messages.push(`${winStreak.value}連勝ボーナス ×${streakMult}`)
       if (handMult > 1) messages.push(`${gameState.value.playerEvaluation?.label}ボーナス ×${handMult}`)
 
-      gameState.value.bonusResult = {
+      addScore(totalScore)
+      incrementStreak()
+
+      gameState.value.scoreResult = {
         basePot: pot,
         streakMultiplier: streakMult,
         handMultiplier: handMult,
-        finalPayout,
-        bonusChips,
+        totalScore,
+        bonusScore,
         messages,
       }
-
-      addChips(finalPayout)
-      incrementStreak()
       gameState.value.message = MESSAGES.PLAYER_WIN
     } else if (winner === 'AI') {
       aiChips.value += pot
       resetStreak()
-      gameState.value.bonusResult = null
+      gameState.value.scoreResult = null
       gameState.value.message = MESSAGES.AI_WIN
     } else {
       const half = Math.floor(pot / 2)
       addChips(half)
       aiChips.value += pot - half
       resetStreak()
-      gameState.value.bonusResult = null
+      gameState.value.scoreResult = null
       gameState.value.message = MESSAGES.TIE
     }
 
@@ -348,9 +367,11 @@ export function useGame() {
   return {
     gameState,
     playerChips,
+    playerScore,
     aiChips,
     winStreak,
     totalWon,
+    currentBlindLevel,
     canFold,
     canCall,
     canRaise,

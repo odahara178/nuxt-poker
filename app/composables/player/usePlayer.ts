@@ -1,5 +1,6 @@
 export function usePlayer() {
   const chips = useState('playerChips', () => STARTING_CHIPS)
+  const score = useState('playerScore', () => 0)
   const winStreak = useState('winStreak', () => 0)
   const totalWon = useState('totalWon', () => 0)
   const handsPlayed = useState('handsPlayed', () => 0)
@@ -16,6 +17,10 @@ export function usePlayer() {
     chips.value -= amount
   }
 
+  const addScore = (amount: number) => {
+    score.value += amount
+  }
+
   const resetStreak = () => {
     winStreak.value = 0
   }
@@ -29,12 +34,14 @@ export function usePlayer() {
 
   return {
     chips,
+    score,
     points,
     winStreak,
     totalWon,
     handsPlayed,
     addChips,
     subtractChips,
+    addScore,
     resetStreak,
     incrementStreak,
     addPoints,

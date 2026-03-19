@@ -10,6 +10,27 @@ const RANK_ORDER: Record<Rank, number> = {
   '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14,
 }
 
+const RANK_NAMES: Record<number, string> = {
+  2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9',
+  10: '10', 11: 'J', 12: 'Q', 13: 'K', 14: 'A',
+}
+
+function buildDetail(handRank: HandRank, tiebreakers: number[]): string {
+  const r = (n: number) => RANK_NAMES[n] ?? String(n)
+  switch (handRank) {
+    case 'HIGH_CARD': return `${r(tiebreakers[0]!)}ハイ`
+    case 'ONE_PAIR': return `${r(tiebreakers[0]!)}のペア`
+    case 'TWO_PAIR': return `${r(tiebreakers[0]!)}と${r(tiebreakers[1]!)}のツーペア`
+    case 'THREE_OF_A_KIND': return `${r(tiebreakers[0]!)}のスリーカード`
+    case 'STRAIGHT': return `${r(tiebreakers[0]!)}ハイ`
+    case 'FLUSH': return `${r(tiebreakers[0]!)}ハイ`
+    case 'FULL_HOUSE': return `${r(tiebreakers[0]!)}のフルハウス`
+    case 'FOUR_OF_A_KIND': return `${r(tiebreakers[0]!)}のフォーカード`
+    case 'STRAIGHT_FLUSH': return `${r(tiebreakers[0]!)}ハイ`
+    case 'ROYAL_FLUSH': return ''
+  }
+}
+
 const HAND_LABELS: Record<HandRank, string> = {
   HIGH_CARD: 'ハイカード',
   ONE_PAIR: 'ワンペア',
@@ -133,6 +154,7 @@ function evaluateFiveCards(cards: Card[]): EvaluatedHand {
     bestFive: cards,
     tiebreakers,
     label: HAND_LABELS[handRank],
+    detail: buildDetail(handRank, tiebreakers),
   }
 }
 

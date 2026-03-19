@@ -46,6 +46,7 @@ export function useAI() {
     communityCards: Card[],
     betting: BettingState,
     aiChips: number,
+    raiseAmount: number,
   ): BettingAction {
     let score =
       phase === 'PREFLOP'
@@ -61,7 +62,7 @@ export function useAI() {
     }
 
     const callCost = betting.currentBet - betting.aiBet
-    const canRaise = !betting.aiRaisedThisRound && aiChips >= callCost + RAISE_AMOUNT
+    const canRaise = !betting.aiRaisedThisRound && aiChips >= callCost + raiseAmount
 
     if (score > STRONG_HAND_THRESHOLD) {
       if (canRaise) return 'RAISE'

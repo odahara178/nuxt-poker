@@ -3,12 +3,12 @@ import type { GamePhase, BettingState } from './betting'
 
 export type RoundWinner = 'PLAYER' | 'AI' | 'TIE'
 
-export interface BonusResult {
+export interface ScoreResult {
   basePot: number
   streakMultiplier: number
   handMultiplier: number
-  finalPayout: number
-  bonusChips: number
+  totalScore: number
+  bonusScore: number
   messages: string[]
 }
 
@@ -22,7 +22,7 @@ export interface GameState {
   playerEvaluation: EvaluatedHand | null
   aiEvaluation: EvaluatedHand | null
   winner: RoundWinner | null
-  bonusResult: BonusResult | null
+  scoreResult: ScoreResult | null
   roundNumber: number
   message: string
   isPlayerTurn: boolean

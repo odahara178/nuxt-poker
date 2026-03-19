@@ -2,6 +2,7 @@
   <div class="hand">
     <div class="hand__header">
       <span class="hand__label">{{ label }}</span>
+      <span v-if="blind" class="hand__blind" :class="`hand__blind--${blind.toLowerCase()}`">{{ blind }}</span>
       <span v-if="evaluation" class="hand__eval">{{ evaluation.label }}</span>
     </div>
     <div class="hand__cards">
@@ -17,6 +18,7 @@ defineProps<{
   cards: Card[]
   label: string
   evaluation?: EvaluatedHand | null
+  blind?: 'SB' | 'BB'
 }>()
 </script>
 
@@ -32,6 +34,25 @@ defineProps<{
   margin-bottom: var(--space-sm);
   font-size: var(--text-md);
   color: var(--color-text-secondary);
+}
+
+.hand__blind {
+  padding: 1px var(--space-sm);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-xs, 11px);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.5px;
+}
+
+.hand__blind--sb {
+  background: var(--color-bg-page);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.hand__blind--bb {
+  background: var(--color-gold);
+  color: #1a1a1a;
 }
 
 .hand__eval {

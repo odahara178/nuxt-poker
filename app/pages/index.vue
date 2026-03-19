@@ -9,18 +9,24 @@
         <span class="logo__sub">1 on 1</span>
       </div>
       <div class="header__stats">
-        <span data-testid="player-chips">💰 {{ playerChips }}</span>
+        <div class="score-display">
+          <span class="score-display__label">スコア</span>
+          <span class="score-display__value" data-testid="player-score">{{ playerScore }}</span>
+        </div>
+        <span class="blind-level">SB {{ currentBlindLevel.small }} / BB {{ currentBlindLevel.big }}</span>
         <span data-testid="round-number">R{{ gameState.roundNumber }}</span>
       </div>
     </div>
 
     <!-- Game Over -->
     <div v-if="gameState.phase === 'GAME_OVER'" class="gameover">
-      <div class="gameover__title">ゲームオーバー</div>
-      <div class="gameover__sub">{{ playerChips <= 0 ? 'チップがなくなりました' : 'AIのチップがなくなりました' }}</div>
+      <div v-if="playerChips <= 0" class="gameover__result gameover__result--lose">敗北</div>
+      <div v-else class="gameover__result gameover__result--win">勝利</div>
+      <div class="gameover__sub">{{ playerChips <= 0 ? 'チップがなくなりました' : 'AIのチップを全て奪いました！' }}</div>
       <div class="gameover__stats">
+        <p>最終スコア: {{ playerScore }}</p>
         <p>プレイ手数: {{ handsPlayed }}</p>
-        <p>総獲得チップ: {{ totalWon }}</p>
+        <p>連勝記録: {{ winStreak }}</p>
       </div>
       <BaseButton size="lg" data-testid="reset-game-btn" @click="resetGame">最初からやり直す</BaseButton>
     </div>
@@ -33,8 +39,8 @@
           :cards="gameState.aiHoleCards"
           label="AI"
           :evaluation="gameState.phase === 'SHOWDOWN' || gameState.phase === 'RESULT' ? gameState.aiEvaluation : null"
+          :blind="gameState.phase !== 'IDLE' ? 'BB' : undefined"
         />
-        <span class="chip-count">AIチップ: {{ aiChips }}</span>
       </div>
 
       <!-- Community Cards -->
@@ -49,6 +55,7 @@
           :cards="gameState.playerHoleCards"
           label="あなた"
           :evaluation="gameState.phase === 'SHOWDOWN' || gameState.phase === 'RESULT' ? gameState.playerEvaluation : null"
+          :blind="gameState.phase !== 'IDLE' ? 'SB' : undefined"
         />
       </div>
 
@@ -62,10 +69,19 @@
         <BaseButton size="lg" data-testid="start-round-btn" @click="startNewRound">ゲーム開始</BaseButton>
       </div>
 
+      <!-- Chip Counter -->
+      <div class="chips-bar">
+        <div class="chips-bar__label">所持チップ</div>
+        <div class="chips-bar__counts">
+          <span class="chips-bar__player" data-testid="player-chips">あなた {{ playerChips }}</span>
+          <span class="chips-bar__vs">vs</span>
+          <span class="chips-bar__ai">AI {{ aiChips }}</span>
+        </div>
+      </div>
+
       <!-- Footer stats -->
       <div class="footer">
         <span>連勝: {{ winStreak }}</span>
-        <span>総獲得: {{ totalWon }}</span>
         <span>手数: {{ handsPlayed }}</span>
       </div>
     </template>
@@ -79,23 +95,25 @@ import { usePlayer } from '~/composables/player/usePlayer'
 const {
   gameState,
   playerChips,
+  playerScore,
   aiChips,
   winStreak,
-  totalWon,
+  currentBlindLevel,
   startNewRound,
 } = useGame()
 
-const { handsPlayed } = usePlayer()
+const { handsPlayed, score } = usePlayer()
 
 function resetGame() {
   playerChips.value = STARTING_CHIPS
   aiChips.value = STARTING_CHIPS
+  score.value = 0
   gameState.value.phase = 'IDLE'
   gameState.value.roundNumber = 0
   gameState.value.message = MESSAGES.IDLE
   gameState.value.isPlayerTurn = false
   gameState.value.winner = null
-  gameState.value.bonusResult = null
+  gameState.value.scoreResult = null
 }
 </script>
 
@@ -148,6 +166,33 @@ function resetGame() {
   font-size: var(--text-md);
   color: var(--color-text-primary);
   font-weight: var(--font-bold);
+  align-items: center;
+}
+
+.score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.score-display__label {
+  font-size: 10px;
+  color: var(--color-gold-dim);
+  font-weight: var(--font-normal);
+  letter-spacing: 1px;
+}
+
+.score-display__value {
+  font-size: var(--text-lg);
+  color: var(--color-gold);
+  font-weight: var(--font-black);
+}
+
+.blind-level {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-normal);
 }
 
 .area {
@@ -157,20 +202,48 @@ function resetGame() {
   margin: var(--space-xs) 0;
 }
 
-.area--ai {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.chip-count {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-}
-
 .start-area {
   text-align: center;
   margin: 20px 0;
+}
+
+/* 所持チップ表示バー */
+.chips-bar {
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-md);
+  margin: var(--space-xs) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chips-bar__label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-bold);
+}
+
+.chips-bar__counts {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-size: var(--text-md);
+  font-weight: var(--font-bold);
+}
+
+.chips-bar__player {
+  color: var(--color-win-text);
+}
+
+.chips-bar__vs {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-normal);
+}
+
+.chips-bar__ai {
+  color: var(--color-lose-text);
 }
 
 .footer {
@@ -189,12 +262,15 @@ function resetGame() {
   padding: 40px 20px;
 }
 
-.gameover__title {
-  font-size: 36px;
-  font-weight: var(--font-bold);
-  color: var(--color-gold);
+.gameover__result {
+  font-size: 52px;
+  font-weight: var(--font-black);
   margin-bottom: var(--space-md);
+  letter-spacing: 4px;
 }
+
+.gameover__result--win  { color: var(--color-win-text); }
+.gameover__result--lose { color: var(--color-lose-text); }
 
 .gameover__sub {
   font-size: var(--text-lg);
@@ -208,6 +284,4 @@ function resetGame() {
   margin-bottom: var(--space-2xl);
   line-height: 2;
 }
-
-
 </style>

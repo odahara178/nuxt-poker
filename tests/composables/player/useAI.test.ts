@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { useAI } from './useAI'
-import type { BettingState, GamePhase } from './useAI'
-import type { Card, Suit, Rank } from './usePoker'
+import { useAI } from '~/composables/player/useAI'
+import type { BettingState, GamePhase } from '~/composables/player/useAI'
+import type { Card, Suit, Rank } from '~/composables/game/usePoker'
 
 function c(rank: Rank, suit: Suit): Card {
   return { rank, suit, id: `${rank}${suit}`, faceUp: true }
@@ -41,7 +41,7 @@ describe('useAI – decideAction', () => {
     const results = Array.from({ length: 50 }, () =>
       decideAction('PREFLOP', [c('A', '♠'), c('A', '♥')], [], makeBetting({ currentBet: 0, aiBet: 0, playerBet: 0 }), 1000),
     )
-    const folds = results.filter(r => r === 'FOLD').length
+    const folds = results.filter(action => action === 'FOLD').length
     expect(folds).toBeLessThan(15) // allow up to 30% for randomness margin
   })
 
@@ -49,7 +49,7 @@ describe('useAI – decideAction', () => {
     const results = Array.from({ length: 50 }, () =>
       decideAction('PREFLOP', [c('2', '♠'), c('7', '♥')], [], makeBetting(), 1000),
     )
-    const raises = results.filter(r => r === 'RAISE').length
+    const raises = results.filter(action => action === 'RAISE').length
     expect(raises).toBeLessThan(15)
   })
 
@@ -65,7 +65,7 @@ describe('useAI – decideAction', () => {
       ),
     )
     // With score near 0 (no pair) and callCost=0, should check or fold (not call)
-    results.forEach(r => expect(['CHECK', 'FOLD', 'RAISE']).toContain(r))
+    results.forEach(action => expect(['CHECK', 'FOLD', 'RAISE']).toContain(action))
   })
 
   it('folds when pot odds are too high and score is low', () => {
@@ -79,7 +79,7 @@ describe('useAI – decideAction', () => {
         1000,
       ),
     )
-    const folds = results.filter(r => r === 'FOLD').length
+    const folds = results.filter(action => action === 'FOLD').length
     expect(folds).toBeGreaterThan(20) // most runs should fold
   })
 
@@ -93,7 +93,7 @@ describe('useAI – decideAction', () => {
         1000,
       ),
     )
-    results.forEach(r => expect(r).not.toBe('RAISE'))
+    results.forEach(action => expect(action).not.toBe('RAISE'))
   })
 
   it('preflop suited connectors score better than unsuited rags', () => {
@@ -104,8 +104,8 @@ describe('useAI – decideAction', () => {
     const rags = Array.from({ length: 50 }, () =>
       decideAction('PREFLOP', [c('2', '♠'), c('7', '♥')], [], makeBetting(), 1000),
     )
-    const connectorFolds = suitedConnectors.filter(r => r === 'FOLD').length
-    const ragFolds = rags.filter(r => r === 'FOLD').length
+    const connectorFolds = suitedConnectors.filter(action => action === 'FOLD').length
+    const ragFolds = rags.filter(action => action === 'FOLD').length
     expect(connectorFolds).toBeLessThanOrEqual(ragFolds + 10) // allow margin for randomness
   })
 
@@ -119,7 +119,7 @@ describe('useAI – decideAction', () => {
         1000,
       ),
     )
-    const folds = results.filter(r => r === 'FOLD').length
+    const folds = results.filter(action => action === 'FOLD').length
     expect(folds).toBeLessThan(10)
   })
 
@@ -133,7 +133,7 @@ describe('useAI – decideAction', () => {
         1000,
       ),
     )
-    const folds = results.filter(r => r === 'FOLD').length
+    const folds = results.filter(action => action === 'FOLD').length
     expect(folds).toBeLessThan(5)
   })
 
@@ -158,7 +158,7 @@ describe('useAI – decideAction', () => {
       ),
     )
     // Among 60 runs, at least some should be CALL (score>75, can't raise, callCost=40)
-    const calls = results.filter(r => r === 'CALL').length
+    const calls = results.filter(action => action === 'CALL').length
     expect(calls).toBeGreaterThan(0)
   })
 
@@ -181,7 +181,7 @@ describe('useAI – decideAction', () => {
         1000,
       ),
     )
-    const folds = results.filter(r => r === 'FOLD').length
+    const folds = results.filter(action => action === 'FOLD').length
     expect(folds).toBeGreaterThan(20)
   })
 

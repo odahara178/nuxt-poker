@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Card, EvaluatedHand } from '~/composables/usePoker'
+import type { Card, EvaluatedHand } from '~/composables/game/usePoker'
 
 defineProps<{
   cards: Card[]
@@ -22,29 +22,29 @@ defineProps<{
 
 <style scoped>
 .hand {
-  margin: 8px 0;
+  margin: var(--space-xs) 0;
 }
 
 .hand__header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  font-size: 13px;
-  color: #555;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
 }
 
 .hand__eval {
-  background: #e8a020;
+  background: var(--color-badge-eval);
   color: #fff;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: bold;
+  padding: 2px var(--space-md);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
 }
 
 .hand__cards {
   display: flex;
-  gap: 8px;
+  gap: var(--space-md);
 }
 </style>

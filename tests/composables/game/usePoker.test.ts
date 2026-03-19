@@ -5,8 +5,8 @@ import {
   dealCards,
   evaluateBestHand,
   compareHands,
-} from './usePoker'
-import type { Card, Suit, Rank } from './usePoker'
+} from '~/composables/game/usePoker'
+import type { Card, Suit, Rank } from '~/composables/game/usePoker'
 
 // Helper: create a card quickly
 function c(rank: Rank, suit: Suit): Card {
@@ -48,9 +48,9 @@ describe('shuffleDeck', () => {
 
   it('does not mutate the original', () => {
     const deck = createDeck()
-    const first = deck[0].id
+    const first = deck[0]!.id
     shuffleDeck(deck)
-    expect(deck[0].id).toBe(first)
+    expect(deck[0]!.id).toBe(first)
   })
 
   it('contains same cards (just reordered)', () => {
@@ -75,14 +75,14 @@ describe('dealCards', () => {
   it('dealt cards are first N of deck', () => {
     const deck = createDeck()
     const { cards } = dealCards(deck, 2)
-    expect(cards[0].id).toBe(deck[0].id)
-    expect(cards[1].id).toBe(deck[1].id)
+    expect(cards[0]!.id).toBe(deck[0]!.id)
+    expect(cards[1]!.id).toBe(deck[1]!.id)
   })
 
   it('remaining starts from index N', () => {
     const deck = createDeck()
     const { remaining } = dealCards(deck, 3)
-    expect(remaining[0].id).toBe(deck[3].id)
+    expect(remaining[0]!.id).toBe(deck[3]!.id)
   })
 })
 

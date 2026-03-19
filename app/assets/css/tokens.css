@@ -1,0 +1,144 @@
+/* ── Global reset ───────────────────────── */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none; /* バウンス・プルリフレッシュ抑制 */
+}
+
+:root {
+  /* ── Typography ─────────────────────────── */
+  --font-family-base: 'Noto Sans JP', 'Inter', sans-serif;
+
+  /* ── Brand ─────────────────────────────── */
+  --color-gold:        #ffd700;
+  --color-gold-dim:    #f0b800;
+
+  /* ── Page / Surface ────────────────────── */
+  --color-bg-page:     #1a3a1a;
+  --color-bg-surface:  rgba(255, 255, 255, 0.07);
+  --color-bg-surface-light: rgba(255, 255, 255, 0.1);
+
+  /* ── Text ───────────────────────────────── */
+  --color-text-primary:   #f0f0f0;
+  --color-text-secondary: #ddd;
+  --color-text-muted:     #ccc;
+  --color-text-dark:      #333;
+  --color-text-darker:    #111;
+
+  /* ── Borders ────────────────────────────── */
+  --color-border:     rgba(255, 255, 255, 0.15);
+  --color-border-dim: rgba(255, 255, 255, 0.2);
+
+  /* ── Status bar ─────────────────────────── */
+  --color-status-bg:   #ffffff;
+  --color-status-text: #1d4020;
+
+  /* ── Betting action buttons ─────────────── */
+  --color-fold:        #c0392b;
+  --color-fold-light:  #e04535;
+  --color-fold-dark:   #8a1a10;
+  --color-check:       #7f8c8d;
+  --color-check-light: #95a5a6;
+  --color-check-dark:  #4e5e5f;
+  --color-call:        #27ae60;
+  --color-call-light:  #2ecc71;
+  --color-call-dark:   #1a7a40;
+  --color-raise:       #e67e22;
+  --color-raise-light: #f39c12;
+  --color-raise-dark:  #b05a00;
+
+  /* ── Button shadows ─────────────────────── */
+  --shadow-btn-fold:  0 4px 0 var(--color-fold-dark),  0 4px 12px rgba(192, 57,  43,  0.45);
+  --shadow-btn-check: 0 4px 0 var(--color-check-dark), 0 4px 12px rgba(127, 140, 141, 0.45);
+  --shadow-btn-call:  0 4px 0 var(--color-call-dark),  0 4px 12px rgba(39,  174, 96,  0.45);
+  --shadow-btn-raise: 0 4px 0 var(--color-raise-dark), 0 4px 12px rgba(230, 126, 34,  0.45);
+
+  --shadow-btn-fold-active:  0 1px 0 var(--color-fold-dark),  0 1px 4px rgba(192, 57,  43,  0.4);
+  --shadow-btn-check-active: 0 1px 0 var(--color-check-dark), 0 1px 4px rgba(127, 140, 141, 0.4);
+  --shadow-btn-call-active:  0 1px 0 var(--color-call-dark),  0 1px 4px rgba(39,  174, 96,  0.4);
+  --shadow-btn-raise-active: 0 1px 0 var(--color-raise-dark), 0 1px 4px rgba(230, 126, 34,  0.4);
+
+  /* ── Primary button (gold) ──────────────── */
+  --color-primary:       #ffd700;
+  --color-primary-light: #ffe54d;
+  --color-primary-dark:  #a07800;
+  --color-primary-text:  #1a3a1a;
+
+  --shadow-btn-primary: 0 4px 0 var(--color-primary-dark), 0 4px 12px rgba(255, 215, 0, 0.4);
+  --shadow-btn-primary-active: 0 1px 0 var(--color-primary-dark), 0 1px 4px rgba(255, 215, 0, 0.35);
+
+  /* ── Accent button (blue) ────────────────── */
+  --color-accent:       #3a5fa0;
+  --color-accent-light: #4a72bb;
+  --color-accent-dark:  #2a4f90;
+
+  --shadow-btn-accent: 0 4px 0 var(--color-accent-dark), 0 4px 12px rgba(58, 95, 160, 0.45);
+  --shadow-btn-accent-active: 0 1px 0 var(--color-accent-dark), 0 1px 4px rgba(58, 95, 160, 0.4);
+
+  /* ── Game outcome ───────────────────────── */
+  --color-win-bg:   #e8f8e8;
+  --color-win-text: #1a7a1a;
+  --color-lose-bg:   #fae8e8;
+  --color-lose-text: #9a1a1a;
+  --color-tie-bg:   #f0f0e8;
+  --color-tie-text: #666;
+
+  /* ── Bonus panel ────────────────────────── */
+  --color-bonus-bg:        #fffbe8;
+  --color-bonus-border:    #e8d840;
+  --color-bonus-highlight: #c07000;
+
+  /* ── Overlay ────────────────────────────── */
+  --color-overlay-backdrop: rgba(0, 0, 0, 0.55);
+  --color-overlay-card:     #fff;
+
+  /* ── Cards (face) ───────────────────────── */
+  --color-card-red:  #cc2200;
+  --color-card-dark: #111;
+
+  /* ── Badges ─────────────────────────────── */
+  --color-badge-phase: #3a5fa0;
+  --color-badge-eval:  #e8a020;
+  --color-badge-ai:    #f0c84a;
+
+  /* ── Spacing ────────────────────────────── */
+  --space-xs:  4px;
+  --space-sm:  6px;
+  --space-md:  8px;
+  --space-lg:  12px;
+  --space-xl:  16px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+
+  /* ── Font sizes ─────────────────────────── */
+  --text-xs:   11px;
+  --text-sm:   12px;
+  --text-md:   13px;
+  --text-base: 14px;
+  --text-lg:   16px;
+  --text-xl:   18px;
+  --text-2xl:  20px;
+  --text-3xl:  28px;
+
+  /* ── Font weights ───────────────────────── */
+  --font-normal: 400;
+  --font-bold:   700;
+  --font-black:  900;
+
+  /* ── Border radius ──────────────────────── */
+  --radius-sm:  4px;
+  --radius-md:  6px;
+  --radius-lg:  8px;
+  --radius-xl:  10px;
+  --radius-2xl: 12px;
+
+  /* ── Shadows ────────────────────────────── */
+  --shadow-card:    1px 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* ── Misc ───────────────────────────────── */
+  --z-overlay:       100;
+  --transition-fast: 0.15s;
+}

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { usePlayer } from './usePlayer'
+import { usePlayer } from '../player/usePlayer'
 
 export interface Item {
   id: string
@@ -23,10 +23,10 @@ export function useItems() {
   const ownedItems = ref<{ id: string; count: number }[]>([])
 
   const buyItem = (itemId: string) => {
-    const item = items.value.find(i => i.id === itemId)
+    const item = items.value.find(candidate => candidate.id === itemId)
     if (!item || player.chips.value < item.cost) return
 
-    const existing = ownedItems.value.find(i => i.id === itemId)
+    const existing = ownedItems.value.find(ownedItem => ownedItem.id === itemId)
     if (existing) existing.count++
     else ownedItems.value.push({ id: itemId, count: 1 })
 
@@ -34,7 +34,7 @@ export function useItems() {
   }
 
   const useItem = (itemId: string) => {
-    const entry = ownedItems.value.find(i => i.id === itemId)
+    const entry = ownedItems.value.find(ownedItem => ownedItem.id === itemId)
     if (!entry || entry.count <= 0) return
 
     if (itemId === 'extra-chips') {

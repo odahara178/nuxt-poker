@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Card, Suit } from '~/composables/usePoker'
+import type { Card, Suit } from '~/composables/game/usePoker'
 
 const props = withDefaults(
   defineProps<{
@@ -44,17 +44,16 @@ const suitSrc = computed(() => SUIT_IMAGES[props.card.suit])
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   user-select: none;
-  box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-card);
 }
 
 .card--sm  { width: 40px;  height: 56px; }
 .card--md  { width: 56px;  height: 78px; }
 .card--lg  { width: 70px;  height: 98px; }
 
-/* 裏面: 背景画像をカード全体に */
 .card__back-img {
   width: 100%;
   height: 100%;
@@ -62,7 +61,6 @@ const suitSrc = computed(() => SUIT_IMAGES[props.card.suit])
   object-fit: cover;
 }
 
-/* 表面: 背景SVGを絶対配置で敷く */
 .card__bg {
   position: absolute;
   inset: 0;
@@ -71,26 +69,25 @@ const suitSrc = computed(() => SUIT_IMAGES[props.card.suit])
   object-fit: cover;
 }
 
-/* テキスト + スートアイコンを中央に重ねる */
 .card__content {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  color: #111;
+  font-weight: var(--font-bold);
+  color: var(--color-card-dark);
   line-height: 1.2;
   gap: 2px;
 }
 
 .card__content--red {
-  color: #cc2200;
+  color: var(--color-card-red);
 }
 
-.card--sm .card__rank  { font-size: 11px; }
-.card--md .card__rank  { font-size: 14px; }
-.card--lg .card__rank  { font-size: 18px; }
+.card--sm .card__rank  { font-size: var(--text-xs); }
+.card--md .card__rank  { font-size: var(--text-base); }
+.card--lg .card__rank  { font-size: var(--text-xl); }
 
 .card--sm .card__suit-img  { width: 14px; height: 14px; }
 .card--md .card__suit-img  { width: 20px; height: 20px; }

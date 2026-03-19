@@ -1,10 +1,9 @@
 import type { Card, EvaluatedHand } from './usePoker'
 import { createDeck, shuffleDeck, dealCards, evaluateBestHand, compareHands } from './usePoker'
-import type { GamePhase, BettingAction, BettingState } from './useAI'
-import { useAI } from './useAI'
-import { usePlayer } from './usePlayer'
-
-export type { GamePhase, BettingAction }
+import type { GamePhase, BettingState } from '../player/useAI'
+import { useAI } from '../player/useAI'
+import { usePlayer } from '../player/usePlayer'
+import { useSound } from '../common/useSound'
 
 export type RoundWinner = 'PLAYER' | 'AI' | 'TIE'
 
@@ -13,6 +12,8 @@ const SMALL_BLIND = 10
 const BIG_BLIND = 20
 const RAISE_AMOUNT = 40
 const AI_ACTION_DELAY_MS = 800
+const PLAYER_ACTION_DELAY_MS = 250  // ボタンアニメーション完了を待つ
+const PHASE_REVEAL_DELAY_MS = 700   // 新カードを確認する間
 
 export interface BonusResult {
   basePot: number
@@ -87,6 +88,7 @@ export function useGame() {
   const { decideAction } = useAI()
   const { chips: playerChips, winStreak, totalWon, handsPlayed, addChips, resetStreak, incrementStreak } =
     usePlayer()
+  const { playCardDeal } = useSound()
 
   const gameState = useState<GameState>('gameState', initialGameState)
   const aiChips = useState('aiChips', () => STARTING_AI_CHIPS)
@@ -127,11 +129,11 @@ export function useGame() {
     }
 
     const deck = shuffleDeck(createDeck())
-    const { cards: playerCards, remaining: d1 } = dealCards(deck, 2)
-    const { cards: aiCards, remaining: d2 } = dealCards(d1, 2)
-    const { cards: community, remaining: finalDeck } = dealCards(d2, 5)
+    const { cards: playerCards, remaining: deckAfterPlayerDeal } = dealCards(deck, 2)
+    const { cards: aiCards, remaining: deckAfterAIDeal } = dealCards(deckAfterPlayerDeal, 2)
+    const { cards: community, remaining: finalDeck } = dealCards(deckAfterAIDeal, 5)
 
-    const aiHoleCards = aiCards.map(c => ({ ...c, faceUp: false }))
+    const aiHoleCards = aiCards.map(card => ({ ...card, faceUp: false }))
 
     // Post blinds
     playerChips.value -= SMALL_BLIND
@@ -156,54 +158,57 @@ export function useGame() {
       winner: null,
       bonusResult: null,
       roundNumber: gameState.value.roundNumber + 1,
-      message: 'プリフロップ：アクションを選択してください',
+      message: 'プリフロップ：アクション選択',
       isPlayerTurn: true,
       pendingAIAction: false,
     }
 
     handsPlayed.value++
+    playCardDeal(2)
   }
 
   function playerFold() {
     if (!canFold.value) return
-    gameState.value.isPlayerTurn = false
+    gameState.value.isPlayerTurn = false // 二重押し防止
     gameState.value.message = 'あなたはフォールドしました'
-    resolveShowdown('AI')
+    setTimeout(() => resolveShowdown('AI'), PLAYER_ACTION_DELAY_MS)
   }
 
   function playerCall() {
     if (!canCall.value) return
-    const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
-    playerChips.value -= callCost
-    gameState.value.betting.playerBet += callCost
-    gameState.value.betting.pot += callCost
-    gameState.value.isPlayerTurn = false
-
-    if (gameState.value.betting.aiRaisedThisRound) {
-      // Responding to AI raise — advance directly
-      advancePhase()
-    } else {
-      triggerAIAction()
-    }
+    gameState.value.isPlayerTurn = false // 二重押し防止
+    setTimeout(() => {
+      const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
+      playerChips.value -= callCost
+      gameState.value.betting.playerBet += callCost
+      gameState.value.betting.pot += callCost
+      if (gameState.value.betting.aiRaisedThisRound) {
+        advancePhase()
+      } else {
+        triggerAIAction()
+      }
+    }, PLAYER_ACTION_DELAY_MS)
   }
 
   function playerRaise() {
     if (!canRaise.value) return
-    const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
-    const totalCost = callCost + RAISE_AMOUNT
-    playerChips.value -= totalCost
-    gameState.value.betting.playerBet += totalCost
-    gameState.value.betting.currentBet = gameState.value.betting.playerBet
-    gameState.value.betting.pot += totalCost
-    gameState.value.betting.playerRaisedThisRound = true
-    gameState.value.isPlayerTurn = false
-    triggerAIAction()
+    gameState.value.isPlayerTurn = false // 二重押し防止
+    setTimeout(() => {
+      const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
+      const totalCost = callCost + RAISE_AMOUNT
+      playerChips.value -= totalCost
+      gameState.value.betting.playerBet += totalCost
+      gameState.value.betting.currentBet = gameState.value.betting.playerBet
+      gameState.value.betting.pot += totalCost
+      gameState.value.betting.playerRaisedThisRound = true
+      triggerAIAction()
+    }, PLAYER_ACTION_DELAY_MS)
   }
 
   function playerCheck() {
     if (!canCheck.value) return
-    gameState.value.isPlayerTurn = false
-    triggerAIAction()
+    gameState.value.isPlayerTurn = false // 二重押し防止
+    setTimeout(() => triggerAIAction(), PLAYER_ACTION_DELAY_MS)
   }
 
   function triggerAIAction() {
@@ -272,24 +277,30 @@ export function useGame() {
     const phase = gameState.value.phase
     if (phase === 'PREFLOP') {
       gameState.value.phase = 'FLOP'
-      gameState.value.message = 'フロップ：3枚のカードが公開されました'
+      gameState.value.message = 'フロップ：3枚オープン'
+      playCardDeal(3)
     } else if (phase === 'FLOP') {
       gameState.value.phase = 'TURN'
-      gameState.value.message = 'ターン：4枚目のカードが公開されました'
+      gameState.value.message = 'ターン：4枚目オープン'
+      playCardDeal(1)
     } else if (phase === 'TURN') {
       gameState.value.phase = 'RIVER'
-      gameState.value.message = 'リバー：最後のカードが公開されました'
+      gameState.value.message = 'リバー：ラストカード'
+      playCardDeal(1)
     } else if (phase === 'RIVER') {
       doShowdown()
       return
     }
 
-    gameState.value.isPlayerTurn = true
+    // 新しいカードを確認する間を設けてから操作UIを表示
+    setTimeout(() => {
+      gameState.value.isPlayerTurn = true
+    }, PHASE_REVEAL_DELAY_MS)
   }
 
   function doShowdown() {
     // Reveal AI cards
-    gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(c => ({ ...c, faceUp: true }))
+    gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(card => ({ ...card, faceUp: true }))
 
     const community = gameState.value.communityCards
     const playerEval = evaluateBestHand([...gameState.value.playerHoleCards, ...community])
@@ -310,7 +321,7 @@ export function useGame() {
 
     // For fold-wins, reveal AI cards too if player won
     if (winner === 'PLAYER') {
-      gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(c => ({ ...c, faceUp: true }))
+      gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(card => ({ ...card, faceUp: true }))
     }
 
     setTimeout(() => applyResult(winner), 1000)

@@ -4,10 +4,13 @@
 
     <!-- Header -->
     <div class="header">
-      <h1 class="header__title">テキサスホールデム</h1>
+      <div class="logo">
+        <span class="logo__main">POKER</span>
+        <span class="logo__sub">1 on 1</span>
+      </div>
       <div class="header__stats">
-        <span>チップ: <strong>{{ playerChips }}</strong></span>
-        <span>ラウンド: {{ gameState.roundNumber }}</span>
+        <span>💰 {{ playerChips }}</span>
+        <span>R{{ gameState.roundNumber }}</span>
       </div>
     </div>
 
@@ -19,7 +22,7 @@
         <p>プレイ手数: {{ handsPlayed }}</p>
         <p>総獲得チップ: {{ totalWon }}</p>
       </div>
-      <button class="gameover__btn" @click="resetGame">最初からやり直す</button>
+      <BaseButton size="lg" @click="resetGame">最初からやり直す</BaseButton>
     </div>
 
     <!-- Main Game -->
@@ -56,7 +59,7 @@
 
       <!-- Start Round Button -->
       <div v-if="gameState.phase === 'IDLE'" class="start-area">
-        <button class="start-btn" @click="startNewRound">ゲーム開始</button>
+        <BaseButton size="lg" @click="startNewRound">ゲーム開始</BaseButton>
       </div>
 
       <!-- Footer stats -->
@@ -70,8 +73,8 @@
 </template>
 
 <script setup lang="ts">
-import { useGame } from '~/composables/useGame'
-import { usePlayer } from '~/composables/usePlayer'
+import { useGame } from '~/composables/game/useGame'
+import { usePlayer } from '~/composables/player/usePlayer'
 
 const {
   gameState,
@@ -100,39 +103,58 @@ function resetGame() {
 .page {
   max-width: 520px;
   margin: 0 auto;
-  padding: 16px;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  padding: var(--space-md) 14px;
+  font-family: var(--font-family-base);
   position: relative;
-  min-height: 100vh;
-  background: #1a3a1a;
-  color: #eee;
+  height: 100vh;        /* 旧ブラウザ向けフォールバック */
+  height: 100dvh;       /* URLバーを除いた実際の表示領域 */
+  overflow: hidden;
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
 }
 
-.header__title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #ffd700;
+.logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo__main {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-black);
+  letter-spacing: 3px;
+  color: var(--color-gold);
+}
+
+.logo__sub {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--color-gold-dim);
+  font-weight: var(--font-normal);
+  margin-top: 1px;
 }
 
 .header__stats {
   display: flex;
-  gap: 16px;
-  font-size: 14px;
-  color: #ccc;
+  gap: var(--space-lg);
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+  font-weight: var(--font-bold);
 }
 
 .area {
-  background: rgba(255, 255, 255, 0.07);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: 8px 0;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-md);
+  margin: var(--space-xs) 0;
 }
 
 .area--ai {
@@ -142,8 +164,8 @@ function resetGame() {
 }
 
 .chip-count {
-  font-size: 13px;
-  color: #aaa;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
 
 .start-area {
@@ -151,29 +173,14 @@ function resetGame() {
   margin: 20px 0;
 }
 
-.start-btn {
-  background: #ffd700;
-  color: #1a3a1a;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 40px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.start-btn:hover {
-  background: #f0c800;
-}
-
 .footer {
   display: flex;
   justify-content: space-around;
-  margin-top: 16px;
-  padding: 8px;
-  font-size: 13px;
-  color: #aaa;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: var(--space-md);
+  padding: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Game Over */
@@ -184,32 +191,23 @@ function resetGame() {
 
 .gameover__title {
   font-size: 36px;
-  font-weight: bold;
-  color: #ffd700;
-  margin-bottom: 8px;
+  font-weight: var(--font-bold);
+  color: var(--color-gold);
+  margin-bottom: var(--space-md);
 }
 
 .gameover__sub {
-  font-size: 16px;
-  color: #ccc;
-  margin-bottom: 24px;
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2xl);
 }
 
 .gameover__stats {
-  font-size: 14px;
-  color: #aaa;
-  margin-bottom: 24px;
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2xl);
   line-height: 2;
 }
 
-.gameover__btn {
-  background: #ffd700;
-  color: #1a3a1a;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 32px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
+
 </style>

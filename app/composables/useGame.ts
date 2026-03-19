@@ -130,11 +130,11 @@ export function useGame() {
     }
 
     const deck = shuffleDeck(createDeck())
-    const { cards: playerCards, remaining: d1 } = dealCards(deck, 2)
-    const { cards: aiCards, remaining: d2 } = dealCards(d1, 2)
-    const { cards: community, remaining: finalDeck } = dealCards(d2, 5)
+    const { cards: playerCards, remaining: deckAfterPlayerDeal } = dealCards(deck, 2)
+    const { cards: aiCards, remaining: deckAfterAIDeal } = dealCards(deckAfterPlayerDeal, 2)
+    const { cards: community, remaining: finalDeck } = dealCards(deckAfterAIDeal, 5)
 
-    const aiHoleCards = aiCards.map(c => ({ ...c, faceUp: false }))
+    const aiHoleCards = aiCards.map(card => ({ ...card, faceUp: false }))
 
     // Post blinds
     playerChips.value -= SMALL_BLIND
@@ -301,7 +301,7 @@ export function useGame() {
 
   function doShowdown() {
     // Reveal AI cards
-    gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(c => ({ ...c, faceUp: true }))
+    gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(card => ({ ...card, faceUp: true }))
 
     const community = gameState.value.communityCards
     const playerEval = evaluateBestHand([...gameState.value.playerHoleCards, ...community])
@@ -322,7 +322,7 @@ export function useGame() {
 
     // For fold-wins, reveal AI cards too if player won
     if (winner === 'PLAYER') {
-      gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(c => ({ ...c, faceUp: true }))
+      gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(card => ({ ...card, faceUp: true }))
     }
 
     setTimeout(() => applyResult(winner), 1000)

@@ -1,12 +1,13 @@
 <template>
   <div class="betting">
     <div class="betting__info">
-      <span>ポット: <strong>{{ gameState.betting.pot }}</strong></span>
+      <span data-testid="betting-pot">ポット: <strong>{{ gameState.betting.pot }}</strong></span>
       <span v-if="canCall">コール: <strong>{{ callCost }}</strong></span>
-      <span v-if="gameState.pendingAIAction" class="betting__thinking">AI思考中…</span>
+      <span v-if="gameState.pendingAIAction" data-testid="ai-thinking" class="betting__thinking">AI思考中…</span>
     </div>
     <div class="betting__buttons">
       <BaseButton
+        data-testid="fold-btn"
         variant="fold"
         :disabled="!canFold || gameState.pendingAIAction"
         @click="playerFold"
@@ -15,6 +16,7 @@
       </BaseButton>
       <BaseButton
         v-if="canCheck"
+        data-testid="check-btn"
         variant="check"
         :disabled="gameState.pendingAIAction"
         @click="playerCheck"
@@ -23,6 +25,7 @@
       </BaseButton>
       <BaseButton
         v-if="canCall"
+        data-testid="call-btn"
         variant="call"
         :disabled="gameState.pendingAIAction"
         @click="playerCall"
@@ -31,6 +34,7 @@
       </BaseButton>
       <BaseButton
         v-if="canRaise"
+        data-testid="raise-btn"
         variant="raise"
         :disabled="gameState.pendingAIAction"
         @click="playerRaise"

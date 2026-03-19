@@ -1,7 +1,7 @@
 <template>
   <div class="overlay">
     <div class="overlay__box">
-      <div class="overlay__banner" :class="bannerClass">{{ bannerText }}</div>
+      <div class="overlay__banner" data-testid="result-banner" :class="bannerClass">{{ bannerText }}</div>
 
       <div class="overlay__hands">
         <div class="overlay__hand-row">
@@ -30,7 +30,7 @@
         </div>
       </div>
 
-      <BaseButton variant="accent" size="lg" @click="proceedToNextRound">次のラウンドへ</BaseButton>
+      <BaseButton variant="accent" size="lg" data-testid="next-round-btn" @click="proceedToNextRound">次のラウンドへ</BaseButton>
     </div>
   </div>
 </template>
@@ -103,7 +103,7 @@ const bonus = computed(() => gameState.value.bonusResult)
 }
 
 .overlay__hand-label {
-  color: var(--color-tie-text);
+  color: var(--color-text-dark);
 }
 
 .overlay__hand-rank {
@@ -124,7 +124,7 @@ const bonus = computed(() => gameState.value.bonusResult)
   font-weight: var(--font-bold);
   font-size: var(--text-md);
   margin-bottom: var(--space-md);
-  color: var(--color-tie-text);
+  color: var(--color-text-darker);
 }
 
 .overlay__bonus-row {
@@ -132,6 +132,7 @@ const bonus = computed(() => gameState.value.bonusResult)
   justify-content: space-between;
   font-size: var(--text-md);
   padding: 2px 0;
+  color: var(--color-raise-dark);
 }
 
 .overlay__bonus-row--highlight {

@@ -9,8 +9,8 @@
         <span class="logo__sub">1 on 1</span>
       </div>
       <div class="header__stats">
-        <span>💰 {{ playerChips }}</span>
-        <span>R{{ gameState.roundNumber }}</span>
+        <span data-testid="player-chips">💰 {{ playerChips }}</span>
+        <span data-testid="round-number">R{{ gameState.roundNumber }}</span>
       </div>
     </div>
 
@@ -22,7 +22,7 @@
         <p>プレイ手数: {{ handsPlayed }}</p>
         <p>総獲得チップ: {{ totalWon }}</p>
       </div>
-      <BaseButton size="lg" @click="resetGame">最初からやり直す</BaseButton>
+      <BaseButton size="lg" data-testid="reset-game-btn" @click="resetGame">最初からやり直す</BaseButton>
     </div>
 
     <!-- Main Game -->
@@ -59,7 +59,7 @@
 
       <!-- Start Round Button -->
       <div v-if="gameState.phase === 'IDLE'" class="start-area">
-        <BaseButton size="lg" @click="startNewRound">ゲーム開始</BaseButton>
+        <BaseButton size="lg" data-testid="start-round-btn" @click="startNewRound">ゲーム開始</BaseButton>
       </div>
 
       <!-- Footer stats -->

@@ -47,5 +47,6 @@ npm run dev
 - カード画像（PNG）対応
 
 ## 知見用システム導入
-- GitHub Actions(CI/CDツール)導入
+- GitHub Actions(CI/CDツール)
 - cz-git（古き良きコマンドコミット）
+- playwright（e2eテスト）

@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { usePlayer } from '../player/usePlayer'
+import { ITEM_IDS, EXTRA_CHIPS_COST, EXTRA_CHIPS_GRANT } from '~/config/game'
 
 export interface Item {
   id: string
@@ -13,10 +14,10 @@ export function useItems() {
 
   const items = ref<Item[]>([
     {
-      id: 'extra-chips',
+      id: ITEM_IDS.EXTRA_CHIPS,
       name: 'チップ補充',
-      cost: 50,
-      description: 'チップを100枚補充する',
+      cost: EXTRA_CHIPS_COST,
+      description: `チップを${EXTRA_CHIPS_GRANT}枚補充する`,
     },
   ])
 
@@ -37,8 +38,8 @@ export function useItems() {
     const entry = ownedItems.value.find(ownedItem => ownedItem.id === itemId)
     if (!entry || entry.count <= 0) return
 
-    if (itemId === 'extra-chips') {
-      player.chips.value += 100
+    if (itemId === ITEM_IDS.EXTRA_CHIPS) {
+      player.chips.value += EXTRA_CHIPS_GRANT
     }
     entry.count--
   }

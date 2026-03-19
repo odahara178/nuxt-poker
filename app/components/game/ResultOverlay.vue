@@ -37,13 +37,14 @@
 
 <script setup lang="ts">
 import { useGame } from '~/composables/game/useGame'
+import { MESSAGES } from '~/config/game'
 
 const { gameState, proceedToNextRound } = useGame()
 
 const bannerText = computed(() => {
-  if (gameState.value.winner === 'PLAYER') return 'あなたの勝ち！'
-  if (gameState.value.winner === 'AI') return 'AIの勝ち...'
-  return '引き分け'
+  if (gameState.value.winner === 'PLAYER') return MESSAGES.PLAYER_WIN
+  if (gameState.value.winner === 'AI') return MESSAGES.AI_WIN
+  return MESSAGES.TIE
 })
 
 const bannerClass = computed(() => ({

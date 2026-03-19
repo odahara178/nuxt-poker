@@ -19,20 +19,9 @@
 
 <script setup lang="ts">
 import { useGame } from '~/composables/game/useGame'
+import { PHASE_LABELS } from '~/config/game'
 
 const { gameState, visibleCommunityCards } = useGame()
-
-const PHASE_LABELS: Record<string, string> = {
-  IDLE: '',
-  DEALING: '',
-  PREFLOP: 'プリフロップ',
-  FLOP: 'フロップ',
-  TURN: 'ターン',
-  RIVER: 'リバー',
-  SHOWDOWN: 'ショーダウン',
-  RESULT: 'ショーダウン',
-  GAME_OVER: '',
-}
 
 const phaseLabel = computed(() => PHASE_LABELS[gameState.value.phase] ?? '')
 </script>

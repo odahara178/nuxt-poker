@@ -1,5 +1,26 @@
 import type { Card } from '../game/usePoker'
 import { evaluateBestHand } from '../game/usePoker'
+import {
+  PREFLOP_DEFAULT_SCORE,
+  PREFLOP_BASE_SCORE,
+  PAIR_BONUS,
+  PAIR_RANK_MULTIPLIER,
+  HIGH_RANK_MULTIPLIER,
+  SUITED_BONUS,
+  CONNECTOR_GAP1_BONUS,
+  CONNECTOR_GAP2_BONUS,
+  MAX_SCORE,
+  RANK_INDEX_MULTIPLIER,
+  BLUFF_PROB,
+  BLUFF_SCORE_BOOST,
+  HERO_FOLD_PROB,
+  HERO_FOLD_REDUCTION,
+  STRONG_HAND_THRESHOLD,
+  MEDIUM_HAND_THRESHOLD,
+  WEAK_HAND_THRESHOLD,
+  FOLD_COST_RATIO,
+} from '~/config/ai'
+import { RAISE_AMOUNT } from '~/config/game'
 
 export type GamePhase =
   | 'IDLE'
@@ -30,7 +51,7 @@ const RANK_ORDER: Record<string, number> = {
 
 function getPreFlopScore(holeCards: Card[]): number {
   const [c1, c2] = holeCards
-  if (!c1 || !c2) return 30
+  if (!c1 || !c2) return PREFLOP_DEFAULT_SCORE
   // RANK_ORDER は全 Rank を網羅しているため ! で確定
   const r1 = RANK_ORDER[c1.rank]!
   const r2 = RANK_ORDER[c2.rank]!
@@ -39,23 +60,23 @@ function getPreFlopScore(holeCards: Card[]): number {
   const highRank = Math.max(r1, r2)
   const gap = Math.abs(r1 - r2)
 
-  let score = 25
+  let score = PREFLOP_BASE_SCORE
   if (isPair) {
-    score += 20 + r1 * 2
+    score += PAIR_BONUS + r1 * PAIR_RANK_MULTIPLIER
   } else {
-    score += (highRank - 2) * 1.5
-    if (isSuited) score += 8
-    if (gap === 1) score += 5
-    else if (gap === 2) score += 3
+    score += (highRank - 2) * HIGH_RANK_MULTIPLIER
+    if (isSuited) score += SUITED_BONUS
+    if (gap === 1) score += CONNECTOR_GAP1_BONUS
+    else if (gap === 2) score += CONNECTOR_GAP2_BONUS
   }
-  return Math.min(100, score)
+  return Math.min(MAX_SCORE, score)
 }
 
 function getPostFlopScore(holeCards: Card[], communityCards: Card[]): number {
   if (communityCards.length === 0) return getPreFlopScore(holeCards)
   const allCards = [...holeCards, ...communityCards]
   const evaluated = evaluateBestHand(allCards)
-  return Math.min(100, evaluated.rankIndex * 11)
+  return Math.min(MAX_SCORE, evaluated.rankIndex * RANK_INDEX_MULTIPLIER)
 }
 
 export function useAI() {
@@ -71,26 +92,26 @@ export function useAI() {
         ? getPreFlopScore(holeCards)
         : getPostFlopScore(holeCards, communityCards)
 
-    // 15% random variance (bluff / hero fold)
+    // ランダム分散（ブラフ / ヒーローフォールド）
     const rand = Math.random()
-    if (rand < 0.08) {
-      score = Math.min(100, score + 35) // bluff
-    } else if (rand < 0.15) {
-      score = Math.max(0, score - 35) // hero fold
+    if (rand < BLUFF_PROB) {
+      score = Math.min(MAX_SCORE, score + BLUFF_SCORE_BOOST)
+    } else if (rand < HERO_FOLD_PROB) {
+      score = Math.max(0, score - HERO_FOLD_REDUCTION)
     }
 
     const callCost = betting.currentBet - betting.aiBet
-    const canRaise = !betting.aiRaisedThisRound && aiChips >= callCost + 40
+    const canRaise = !betting.aiRaisedThisRound && aiChips >= callCost + RAISE_AMOUNT
 
-    if (score > 75) {
+    if (score > STRONG_HAND_THRESHOLD) {
       if (canRaise) return 'RAISE'
       if (callCost === 0) return 'CHECK'
       return 'CALL'
-    } else if (score > 40) {
-      if (callCost > aiChips * 0.3) return 'FOLD'
+    } else if (score > MEDIUM_HAND_THRESHOLD) {
+      if (callCost > aiChips * FOLD_COST_RATIO) return 'FOLD'
       if (callCost === 0) return 'CHECK'
       return 'CALL'
-    } else if (score > 20) {
+    } else if (score > WEAK_HAND_THRESHOLD) {
       if (callCost === 0) return 'CHECK'
       return 'FOLD'
     } else {

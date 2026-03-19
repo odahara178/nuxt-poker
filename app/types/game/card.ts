@@ -25,4 +25,5 @@ export interface EvaluatedHand {
   bestFive: Card[]
   tiebreakers: number[]
   label: string
+  detail: string
 }

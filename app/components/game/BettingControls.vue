@@ -39,7 +39,7 @@
         :disabled="gameState.pendingAIAction"
         @click="playerRaise"
       >
-        レイズ +{{ RAISE_AMOUNT }}
+        レイズ +{{ currentBlindLevel.raise }}
       </BaseButton>
     </div>
   </div>
@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { useGame } from '~/composables/game/useGame'
 
-const { gameState, canFold, canCall, canRaise, canCheck, playerFold, playerCall, playerRaise, playerCheck } =
+const { gameState, canFold, canCall, canRaise, canCheck, currentBlindLevel, playerFold, playerCall, playerRaise, playerCheck } =
   useGame()
 
 const callCost = computed(

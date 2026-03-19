@@ -1,45 +1,12 @@
-import type { Card, EvaluatedHand } from './usePoker'
+import type { Card, EvaluatedHand } from '~/types/game/card'
+import type { GamePhase, BettingState } from '~/types/game/betting'
+import type { GameState, BonusResult, RoundWinner } from '~/types/game/state'
 import { createDeck, shuffleDeck, dealCards, evaluateBestHand, compareHands } from './usePoker'
-import type { GamePhase, BettingState } from '../player/useAI'
-import { useAI } from '../player/useAI'
-import { usePlayer } from '../player/usePlayer'
-import { useSound } from '../common/useSound'
+import { useAI } from '~/composables/player/useAI'
+import { usePlayer } from '~/composables/player/usePlayer'
+import { useSound } from '~/composables/common/useSound'
 
-export type RoundWinner = 'PLAYER' | 'AI' | 'TIE'
-
-const STARTING_AI_CHIPS = 1000
-const SMALL_BLIND = 10
-const BIG_BLIND = 20
-const RAISE_AMOUNT = 40
-const AI_ACTION_DELAY_MS = 800
-const PLAYER_ACTION_DELAY_MS = 250  // ボタンアニメーション完了を待つ
-const PHASE_REVEAL_DELAY_MS = 700   // 新カードを確認する間
-
-export interface BonusResult {
-  basePot: number
-  streakMultiplier: number
-  handMultiplier: number
-  finalPayout: number
-  bonusChips: number
-  messages: string[]
-}
-
-export interface GameState {
-  phase: GamePhase
-  deck: Card[]
-  communityCards: Card[]
-  playerHoleCards: Card[]
-  aiHoleCards: Card[]
-  betting: BettingState
-  playerEvaluation: EvaluatedHand | null
-  aiEvaluation: EvaluatedHand | null
-  winner: RoundWinner | null
-  bonusResult: BonusResult | null
-  roundNumber: number
-  message: string
-  isPlayerTurn: boolean
-  pendingAIAction: boolean
-}
+export type { GameState, BonusResult, RoundWinner }
 
 function initialBetting(): BettingState {
   return {
@@ -65,23 +32,21 @@ function initialGameState(): GameState {
     winner: null,
     bonusResult: null,
     roundNumber: 0,
-    message: 'ゲームを開始してください',
+    message: MESSAGES.IDLE,
     isPlayerTurn: false,
     pendingAIAction: false,
   }
 }
 
 function getStreakMultiplier(streak: number): number {
-  if (streak >= 4) return 2.5
-  if (streak >= 3) return 2.0
-  if (streak >= 2) return 1.5
-  if (streak >= 1) return 1.2
+  for (const { min, multiplier } of STREAK_MULTIPLIERS) {
+    if (streak >= min) return multiplier
+  }
   return 1.0
 }
 
 function getHandMultiplier(rankIndex: number): number {
-  const multipliers = [1.0, 1.0, 1.1, 1.2, 1.5, 2.0, 3.0, 5.0, 8.0, 10.0]
-  return multipliers[rankIndex] ?? 1.0
+  return HAND_MULTIPLIERS[rankIndex] ?? 1.0
 }
 
 export function useGame() {
@@ -91,7 +56,7 @@ export function useGame() {
   const { playCardDeal } = useSound()
 
   const gameState = useState<GameState>('gameState', initialGameState)
-  const aiChips = useState('aiChips', () => STARTING_AI_CHIPS)
+  const aiChips = useState('aiChips', () => STARTING_CHIPS)
 
   const canFold = computed(
     () => gameState.value.isPlayerTurn && !gameState.value.pendingAIAction,
@@ -158,7 +123,7 @@ export function useGame() {
       winner: null,
       bonusResult: null,
       roundNumber: gameState.value.roundNumber + 1,
-      message: 'プリフロップ：アクション選択',
+      message: MESSAGES.PREFLOP_ACTION,
       isPlayerTurn: true,
       pendingAIAction: false,
     }
@@ -170,7 +135,7 @@ export function useGame() {
   function playerFold() {
     if (!canFold.value) return
     gameState.value.isPlayerTurn = false // 二重押し防止
-    gameState.value.message = 'あなたはフォールドしました'
+    gameState.value.message = MESSAGES.PLAYER_FOLD
     setTimeout(() => resolveShowdown('AI'), PLAYER_ACTION_DELAY_MS)
   }
 
@@ -232,13 +197,13 @@ export function useGame() {
     )
 
     if (action === 'FOLD') {
-      gameState.value.message = 'AIがフォールドしました'
+      gameState.value.message = MESSAGES.AI_FOLD
       resolveShowdown('PLAYER')
       return
     }
 
     if (action === 'CHECK' || (action === 'CALL' && callCost === 0)) {
-      gameState.value.message = 'AIはチェックしました'
+      gameState.value.message = MESSAGES.AI_CHECK
       advancePhase()
       return
     }
@@ -247,7 +212,7 @@ export function useGame() {
       aiChips.value -= callCost
       betting.aiBet += callCost
       betting.pot += callCost
-      gameState.value.message = 'AIはコールしました'
+      gameState.value.message = MESSAGES.AI_CALL
       advancePhase()
       return
     }
@@ -277,15 +242,15 @@ export function useGame() {
     const phase = gameState.value.phase
     if (phase === 'PREFLOP') {
       gameState.value.phase = 'FLOP'
-      gameState.value.message = 'フロップ：3枚オープン'
+      gameState.value.message = MESSAGES.FLOP_OPEN
       playCardDeal(3)
     } else if (phase === 'FLOP') {
       gameState.value.phase = 'TURN'
-      gameState.value.message = 'ターン：4枚目オープン'
+      gameState.value.message = MESSAGES.TURN_OPEN
       playCardDeal(1)
     } else if (phase === 'TURN') {
       gameState.value.phase = 'RIVER'
-      gameState.value.message = 'リバー：ラストカード'
+      gameState.value.message = MESSAGES.RIVER_LAST
       playCardDeal(1)
     } else if (phase === 'RIVER') {
       doShowdown()
@@ -324,7 +289,7 @@ export function useGame() {
       gameState.value.aiHoleCards = gameState.value.aiHoleCards.map(card => ({ ...card, faceUp: true }))
     }
 
-    setTimeout(() => applyResult(winner), 1000)
+    setTimeout(() => applyResult(winner), SHOWDOWN_RESULT_DELAY_MS)
   }
 
   function applyResult(winner: RoundWinner) {
@@ -352,19 +317,19 @@ export function useGame() {
 
       addChips(finalPayout)
       incrementStreak()
-      gameState.value.message = 'あなたの勝ち！'
+      gameState.value.message = MESSAGES.PLAYER_WIN
     } else if (winner === 'AI') {
       aiChips.value += pot
       resetStreak()
       gameState.value.bonusResult = null
-      gameState.value.message = 'AIの勝ち...'
+      gameState.value.message = MESSAGES.AI_WIN
     } else {
       const half = Math.floor(pot / 2)
       addChips(half)
       aiChips.value += pot - half
       resetStreak()
       gameState.value.bonusResult = null
-      gameState.value.message = '引き分け！'
+      gameState.value.message = MESSAGES.TIE
     }
 
     gameState.value.phase = 'RESULT'
@@ -376,7 +341,7 @@ export function useGame() {
       return
     }
     gameState.value.phase = 'IDLE'
-    gameState.value.message = 'ゲームを開始してください'
+    gameState.value.message = MESSAGES.IDLE
     gameState.value.isPlayerTurn = false
   }
 

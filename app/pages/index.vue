@@ -88,11 +88,11 @@ const {
 const { handsPlayed } = usePlayer()
 
 function resetGame() {
-  playerChips.value = 1000
-  aiChips.value = 1000
+  playerChips.value = STARTING_CHIPS
+  aiChips.value = STARTING_CHIPS
   gameState.value.phase = 'IDLE'
   gameState.value.roundNumber = 0
-  gameState.value.message = 'ゲームを開始してください'
+  gameState.value.message = MESSAGES.IDLE
   gameState.value.isPlayerTurn = false
   gameState.value.winner = null
   gameState.value.bonusResult = null

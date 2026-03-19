@@ -1,10 +1,10 @@
 import type { Card, EvaluatedHand } from './usePoker'
 import { createDeck, shuffleDeck, dealCards, evaluateBestHand, compareHands } from './usePoker'
-import type { GamePhase, BettingAction, BettingState } from './useAI'
+import type { GamePhase, BettingState } from './useAI'
 import { useAI } from './useAI'
 import { usePlayer } from './usePlayer'
+import { useSound } from './useSound'
 
-export type { GamePhase, BettingAction }
 
 export type RoundWinner = 'PLAYER' | 'AI' | 'TIE'
 
@@ -87,6 +87,7 @@ export function useGame() {
   const { decideAction } = useAI()
   const { chips: playerChips, winStreak, totalWon, handsPlayed, addChips, resetStreak, incrementStreak } =
     usePlayer()
+  const { playCardDeal } = useSound()
 
   const gameState = useState<GameState>('gameState', initialGameState)
   const aiChips = useState('aiChips', () => STARTING_AI_CHIPS)
@@ -162,6 +163,7 @@ export function useGame() {
     }
 
     handsPlayed.value++
+    playCardDeal(2)
   }
 
   function playerFold() {
@@ -273,12 +275,15 @@ export function useGame() {
     if (phase === 'PREFLOP') {
       gameState.value.phase = 'FLOP'
       gameState.value.message = 'フロップ：3枚のカードが公開されました'
+      playCardDeal(3)
     } else if (phase === 'FLOP') {
       gameState.value.phase = 'TURN'
       gameState.value.message = 'ターン：4枚目のカードが公開されました'
+      playCardDeal(1)
     } else if (phase === 'TURN') {
       gameState.value.phase = 'RIVER'
       gameState.value.message = 'リバー：最後のカードが公開されました'
+      playCardDeal(1)
     } else if (phase === 'RIVER') {
       doShowdown()
       return

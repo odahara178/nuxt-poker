@@ -76,7 +76,10 @@ export function shuffleDeck(deck: Card[]): Card[] {
   const d = [...deck]
   for (let i = d.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[d[i], d[j]] = [d[j], d[i]]
+    // noUncheckedIndexedAccess: i/j は常に範囲内なので ! で確定
+    const tmp = d[i]!
+    d[i] = d[j]!
+    d[j] = tmp
   }
   return d
 }
@@ -92,6 +95,7 @@ function getCombinations(cards: Card[], k: number): Card[][] {
   if (k === 0) return [[]]
   if (cards.length < k) return []
   const [first, ...rest] = cards
+  if (first === undefined) return []
   const withFirst = getCombinations(rest, k - 1).map(combo => [first, ...combo])
   return [...withFirst, ...getCombinations(rest, k)]
 }
@@ -102,15 +106,16 @@ function evaluateFiveCards(cards: Card[]): EvaluatedHand {
 
   const isFlush = suitList.every(s => s === suitList[0])
   const uniqueRanks = [...new Set(rankVals)].sort((a, b) => b - a)
-  const isNormalStraight = uniqueRanks.length === 5 && uniqueRanks[0] - uniqueRanks[4] === 4
+  // length===5 を確認済みのため ! で確定
+  const isNormalStraight = uniqueRanks.length === 5 && uniqueRanks[0]! - uniqueRanks[4]! === 4
   // A-2-3-4-5 wheel: unique sorted = [14,5,4,3,2]
   const isWheel =
     uniqueRanks.length === 5 &&
-    uniqueRanks[0] === 14 &&
-    uniqueRanks[1] === 5 &&
-    uniqueRanks[2] === 4 &&
-    uniqueRanks[3] === 3 &&
-    uniqueRanks[4] === 2
+    uniqueRanks[0]! === 14 &&
+    uniqueRanks[1]! === 5 &&
+    uniqueRanks[2]! === 4 &&
+    uniqueRanks[3]! === 3 &&
+    uniqueRanks[4]! === 2
   const isStraight = isNormalStraight || isWheel
 
   const rankCounts: Record<number, number> = {}
@@ -124,7 +129,7 @@ function evaluateFiveCards(cards: Card[]): EvaluatedHand {
 
   let handRank: HandRank
   if (isFlush && isStraight) {
-    handRank = !isWheel && rankVals[0] === 14 ? 'ROYAL_FLUSH' : 'STRAIGHT_FLUSH'
+    handRank = !isWheel && rankVals[0]! === 14 ? 'ROYAL_FLUSH' : 'STRAIGHT_FLUSH'
   } else if (counts[0] === 4) {
     handRank = 'FOUR_OF_A_KIND'
   } else if (counts[0] === 3 && counts[1] === 2) {
@@ -144,7 +149,7 @@ function evaluateFiveCards(cards: Card[]): EvaluatedHand {
   }
 
   const tiebreakers: number[] = isStraight
-    ? [isWheel ? 5 : rankVals[0]]
+    ? [isWheel ? 5 : rankVals[0]!]
     : countGroups.map(g => g.rank)
 
   return {
@@ -172,7 +177,9 @@ export function evaluateBestHand(cards: Card[]): EvaluatedHand {
 export function compareHands(a: EvaluatedHand, b: EvaluatedHand): number {
   if (a.rankIndex !== b.rankIndex) return a.rankIndex - b.rankIndex
   for (let i = 0; i < Math.min(a.tiebreakers.length, b.tiebreakers.length); i++) {
-    if (a.tiebreakers[i] !== b.tiebreakers[i]) return a.tiebreakers[i] - b.tiebreakers[i]
+    const aTb = a.tiebreakers[i]!
+    const bTb = b.tiebreakers[i]!
+    if (aTb !== bTb) return aTb - bTb
   }
   return 0
 }

@@ -1,7 +1,6 @@
 <template>
   <div class="status">
     <span class="status__message">{{ gameState.message }}</span>
-    <span class="status__round">ラウンド {{ gameState.roundNumber }}</span>
   </div>
 </template>
 
@@ -13,23 +12,21 @@ const { gameState } = useGame()
 
 <style scoped>
 .status {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: #f0f4ff;
-  border-radius: 6px;
-  font-size: 14px;
-  margin: 8px 0;
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-status-bg);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-md);
+  margin: var(--space-xs) 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .status__message {
-  color: #333;
-  font-weight: bold;
-}
-
-.status__round {
-  color: #888;
-  font-size: 12px;
+  color: var(--color-status-text);
+  font-weight: var(--font-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  letter-spacing: 0.02em;
 }
 </style>

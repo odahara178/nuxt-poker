@@ -13,6 +13,8 @@ const SMALL_BLIND = 10
 const BIG_BLIND = 20
 const RAISE_AMOUNT = 40
 const AI_ACTION_DELAY_MS = 800
+const PLAYER_ACTION_DELAY_MS = 250  // ボタンアニメーション完了を待つ
+const PHASE_REVEAL_DELAY_MS = 700   // 新カードを確認する間
 
 export interface BonusResult {
   basePot: number
@@ -157,7 +159,7 @@ export function useGame() {
       winner: null,
       bonusResult: null,
       roundNumber: gameState.value.roundNumber + 1,
-      message: 'プリフロップ：アクションを選択してください',
+      message: 'プリフロップ：アクション選択',
       isPlayerTurn: true,
       pendingAIAction: false,
     }
@@ -168,44 +170,46 @@ export function useGame() {
 
   function playerFold() {
     if (!canFold.value) return
-    gameState.value.isPlayerTurn = false
+    gameState.value.isPlayerTurn = false // 二重押し防止
     gameState.value.message = 'あなたはフォールドしました'
-    resolveShowdown('AI')
+    setTimeout(() => resolveShowdown('AI'), PLAYER_ACTION_DELAY_MS)
   }
 
   function playerCall() {
     if (!canCall.value) return
-    const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
-    playerChips.value -= callCost
-    gameState.value.betting.playerBet += callCost
-    gameState.value.betting.pot += callCost
-    gameState.value.isPlayerTurn = false
-
-    if (gameState.value.betting.aiRaisedThisRound) {
-      // Responding to AI raise — advance directly
-      advancePhase()
-    } else {
-      triggerAIAction()
-    }
+    gameState.value.isPlayerTurn = false // 二重押し防止
+    setTimeout(() => {
+      const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
+      playerChips.value -= callCost
+      gameState.value.betting.playerBet += callCost
+      gameState.value.betting.pot += callCost
+      if (gameState.value.betting.aiRaisedThisRound) {
+        advancePhase()
+      } else {
+        triggerAIAction()
+      }
+    }, PLAYER_ACTION_DELAY_MS)
   }
 
   function playerRaise() {
     if (!canRaise.value) return
-    const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
-    const totalCost = callCost + RAISE_AMOUNT
-    playerChips.value -= totalCost
-    gameState.value.betting.playerBet += totalCost
-    gameState.value.betting.currentBet = gameState.value.betting.playerBet
-    gameState.value.betting.pot += totalCost
-    gameState.value.betting.playerRaisedThisRound = true
-    gameState.value.isPlayerTurn = false
-    triggerAIAction()
+    gameState.value.isPlayerTurn = false // 二重押し防止
+    setTimeout(() => {
+      const callCost = gameState.value.betting.currentBet - gameState.value.betting.playerBet
+      const totalCost = callCost + RAISE_AMOUNT
+      playerChips.value -= totalCost
+      gameState.value.betting.playerBet += totalCost
+      gameState.value.betting.currentBet = gameState.value.betting.playerBet
+      gameState.value.betting.pot += totalCost
+      gameState.value.betting.playerRaisedThisRound = true
+      triggerAIAction()
+    }, PLAYER_ACTION_DELAY_MS)
   }
 
   function playerCheck() {
     if (!canCheck.value) return
-    gameState.value.isPlayerTurn = false
-    triggerAIAction()
+    gameState.value.isPlayerTurn = false // 二重押し防止
+    setTimeout(() => triggerAIAction(), PLAYER_ACTION_DELAY_MS)
   }
 
   function triggerAIAction() {
@@ -274,22 +278,25 @@ export function useGame() {
     const phase = gameState.value.phase
     if (phase === 'PREFLOP') {
       gameState.value.phase = 'FLOP'
-      gameState.value.message = 'フロップ：3枚のカードが公開されました'
+      gameState.value.message = 'フロップ：3枚オープン'
       playCardDeal(3)
     } else if (phase === 'FLOP') {
       gameState.value.phase = 'TURN'
-      gameState.value.message = 'ターン：4枚目のカードが公開されました'
+      gameState.value.message = 'ターン：4枚目オープン'
       playCardDeal(1)
     } else if (phase === 'TURN') {
       gameState.value.phase = 'RIVER'
-      gameState.value.message = 'リバー：最後のカードが公開されました'
+      gameState.value.message = 'リバー：ラストカード'
       playCardDeal(1)
     } else if (phase === 'RIVER') {
       doShowdown()
       return
     }
 
-    gameState.value.isPlayerTurn = true
+    // 新しいカードを確認する間を設けてから操作UIを表示
+    setTimeout(() => {
+      gameState.value.isPlayerTurn = true
+    }, PHASE_REVEAL_DELAY_MS)
   }
 
   function doShowdown() {

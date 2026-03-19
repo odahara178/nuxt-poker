@@ -1,14 +1,16 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { usePlayer } from './usePlayer'
 
 type GlobalWithStubs = typeof globalThis & {
-  useState: <T>(key: string, init: () => T) => ReturnType<typeof ref<T>>
+  // テスト用スタブ: Nuxt の useState を ref で代替
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useState: (key: string, init: () => unknown) => Ref<any>
 }
 
 // Reset useState stub per test so each test gets fresh state
 beforeEach(() => {
-  ;(globalThis as GlobalWithStubs).useState = <T>(_key: string, init: () => T) => ref(init())
+  ;(globalThis as GlobalWithStubs).useState = (_key: string, init: () => unknown) => ref(init())
 })
 
 describe('usePlayer', () => {

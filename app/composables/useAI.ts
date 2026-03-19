@@ -29,10 +29,11 @@ const RANK_ORDER: Record<string, number> = {
 }
 
 function getPreFlopScore(holeCards: Card[]): number {
-  if (holeCards.length < 2) return 30
   const [c1, c2] = holeCards
-  const r1 = RANK_ORDER[c1.rank]
-  const r2 = RANK_ORDER[c2.rank]
+  if (!c1 || !c2) return 30
+  // RANK_ORDER は全 Rank を網羅しているため ! で確定
+  const r1 = RANK_ORDER[c1.rank]!
+  const r2 = RANK_ORDER[c2.rank]!
   const isPair = r1 === r2
   const isSuited = c1.suit === c2.suit
   const highRank = Math.max(r1, r2)

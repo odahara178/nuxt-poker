@@ -30,7 +30,7 @@
         </div>
       </div>
 
-      <button class="overlay__btn" @click="proceedToNextRound">次のラウンドへ</button>
+      <BaseButton variant="accent" size="lg" @click="proceedToNextRound">次のラウンドへ</BaseButton>
     </div>
   </div>
 </template>
@@ -59,123 +59,98 @@ const bonus = computed(() => gameState.value.bonusResult)
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--color-overlay-backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: var(--z-overlay);
 }
 
 .overlay__box {
-  background: #fff;
-  border-radius: 12px;
-  padding: 28px 32px;
+  background: var(--color-overlay-card);
+  border-radius: var(--radius-2xl);
+  padding: 28px var(--space-3xl);
   min-width: 300px;
   max-width: 420px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-overlay);
 }
 
 .overlay__banner {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 16px;
-  padding: 8px;
-  border-radius: 8px;
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
 }
 
-.overlay__banner--win {
-  background: #e8f8e8;
-  color: #1a7a1a;
-}
-
-.overlay__banner--lose {
-  background: #fae8e8;
-  color: #9a1a1a;
-}
-
-.overlay__banner--tie {
-  background: #f0f0e8;
-  color: #666;
-}
+.overlay__banner--win  { background: var(--color-win-bg);  color: var(--color-win-text); }
+.overlay__banner--lose { background: var(--color-lose-bg); color: var(--color-lose-text); }
+.overlay__banner--tie  { background: var(--color-tie-bg);  color: var(--color-tie-text); }
 
 .overlay__hands {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-xl);
   text-align: left;
 }
 
 .overlay__hand-row {
   display: flex;
   justify-content: space-between;
-  padding: 4px 0;
+  padding: var(--space-xs) 0;
   border-bottom: 1px solid #eee;
-  font-size: 14px;
+  font-size: var(--text-base);
 }
 
 .overlay__hand-label {
-  color: #666;
+  color: var(--color-tie-text);
 }
 
 .overlay__hand-rank {
-  font-weight: bold;
-  color: #333;
+  font-weight: var(--font-bold);
+  color: var(--color-text-dark);
 }
 
 .overlay__bonus {
-  background: #fffbe8;
-  border: 1px solid #e8d840;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 16px;
+  background: var(--color-bonus-bg);
+  border: 1px solid var(--color-bonus-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
   text-align: left;
 }
 
 .overlay__bonus-title {
-  font-weight: bold;
-  font-size: 13px;
-  margin-bottom: 8px;
-  color: #666;
+  font-weight: var(--font-bold);
+  font-size: var(--text-md);
+  margin-bottom: var(--space-md);
+  color: var(--color-tie-text);
 }
 
 .overlay__bonus-row {
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: var(--text-md);
   padding: 2px 0;
 }
 
 .overlay__bonus-row--highlight {
-  color: #c07000;
-  font-weight: bold;
+  color: var(--color-bonus-highlight);
+  font-weight: var(--font-bold);
 }
 
 .overlay__bonus-total {
-  border-top: 1px solid #e8d840;
-  margin-top: 4px;
-  padding-top: 4px;
-  font-weight: bold;
-  font-size: 15px;
+  border-top: 1px solid var(--color-bonus-border);
+  margin-top: var(--space-xs);
+  padding-top: var(--space-xs);
+  font-weight: var(--font-bold);
+  font-size: var(--text-lg);
 }
 
 .overlay__bonus-extra {
-  color: #e67e22;
-  font-weight: bold;
+  color: var(--color-raise);
+  font-weight: var(--font-bold);
 }
 
-.overlay__btn {
-  background: #3a5fa0;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 32px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 4px;
-}
 
-.overlay__btn:hover {
-  background: #2a4f90;
-}
 </style>
